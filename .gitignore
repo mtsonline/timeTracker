@@ -1,0 +1,20 @@
+# Persönliche Daten / personal data (never commit)
+worklogs/
+backups/
+categories.json
+tasks.json
+todo.json
+columns.json
+settings.json
+~*.tmp
+
+# Python
+__pycache__/
+*.pyc
+
+# OS / editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
