@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.5.2 – 2026-11-23
+- Menu reordered like the todo group: Add task, Remove task, Task report (renamed from “Report”);
+  groups separated by lines; “Add task” is preselected when the menu opens
+
 ## 2.5.1 – 2026-11-23
 - Windows: today's total in the tray tooltip was not always refreshed. It is now also recalculated
   when the menu opens (shown as the first, greyed-out menu item) and when hovering over the icon;

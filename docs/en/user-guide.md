@@ -10,9 +10,9 @@ errors are logged to `%APPDATA%\Zeiterfassung\zeiterfassung.log`.
 
 | Menu item | Function |
 |---|---|
-| Report | show the weekly report of a selected week |
 | Add task | log work time |
 | Remove task | delete saved tasks you no longer need |
+| Task report | show the weekly report of a selected week |
 | Add / remove category/subcategory | maintain the structure |
 | Add todo / Show todos / Todo report | manage todos |
 | Export reports | save weekly report and todo report as files |
@@ -72,9 +72,9 @@ Every entry is written immediately to `worklogs/<monday of the week>_worklog.csv
 selection list (`tasks.json`); entries already logged in the worklog stay unchanged. The list of
 remaining tasks is shown again, **Esc** ends.
 
-## Report
+## Task report
 
-**Report** → select a week (the current week is preselected; shown as `CW 45 / 2026 (2026-11-02 .. 2026-11-08)`).
+**Task report** → select a week (the current week is preselected; shown as `CW 45 / 2026 (2026-11-02 .. 2026-11-08)`).
 Entries with the same date, category, subcategory and description are summed up. The window
 title shows the weekly total.
 

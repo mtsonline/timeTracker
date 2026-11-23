@@ -1,4 +1,4 @@
-﻿# timeTracker - zeiterfassung.ps1 (Windows, PowerShell 5.1+)        Version 2.5.1
+﻿# timeTracker - zeiterfassung.ps1 (Windows, PowerShell 5.1+)        Version 2.5.2
 #
 # Arbeitszeit- und Todo-Verwaltung als Tray-Anwendung. Gleiche Datendateien und Formate wie
 # linux/zeiterfassung.py, damit beide Varianten parallel auf demselben (Nextcloud-)Ordner arbeiten.
@@ -10,6 +10,7 @@
 #
 # Lizenz: MIT (siehe LICENSE)
 #
+# 2.5.2  Menü: Task hinzufügen / Task entfernen / Task-Report (wie bei den Todos), Gruppen getrennt
 # 2.5.1  Tagessumme im Tray robuster: Neuberechnung beim Öffnen des Menüs (oberster Eintrag) und
 #        beim Darüberfahren; Fehler werden in %APPDATA%\Zeiterfassung\zeiterfassung.log protokolliert
 # 2.5.0  Eintrags-Dialog (Dauer + Woche/Tag/Uhrzeit/eigene Felder, rückwirkend), Spalten als Checkliste,
@@ -99,7 +100,7 @@ function Log([string]$msg) {
 $global:Strings = @{
     'de' = @{
         'app.title' = 'Arbeitszeit'
-        'menu.report' = 'Report'
+        'menu.report' = 'Task-Report'
         'menu.addTask' = 'Task hinzufügen'
         'menu.addCat' = 'Kategorie/Unterkategorie hinzufügen'
         'menu.remCat' = 'Kategorie/Unterkategorie entfernen'
@@ -146,7 +147,7 @@ $global:Strings = @{
         'cat.remAll' = '[Kategorie vollständig entfernen]'
         'week.select' = 'Woche wählen'
         'week.label' = 'KW {0} / {1}   ({2} .. {3})'
-        'report.title' = 'Report - KW {0}: {1}  ({2} .. {3})  F5 = aktualisieren'
+        'report.title' = 'Task-Report - KW {0}: {1}  ({2} .. {3})  F5 = aktualisieren'
         'report.noEntries' = 'Keine Einträge in dieser Woche.'
         'report.noData' = 'Keine Daten vorhanden.'
         'todoReport.title' = 'Todo-Report (Markdown)  F5 = aktualisieren'
@@ -254,7 +255,7 @@ $global:Strings = @{
     }
     'en' = @{
         'app.title' = 'Work time'
-        'menu.report' = 'Report'
+        'menu.report' = 'Task report'
         'menu.addTask' = 'Add task'
         'menu.addCat' = 'Add category/subcategory'
         'menu.remCat' = 'Remove category/subcategory'
@@ -301,7 +302,7 @@ $global:Strings = @{
         'cat.remAll' = '[Remove entire category]'
         'week.select' = 'Select week'
         'week.label' = 'CW {0} / {1}   ({2} .. {3})'
-        'report.title' = 'Report - CW {0}: {1}  ({2} .. {3})  F5 = refresh'
+        'report.title' = 'Task report - CW {0}: {1}  ({2} .. {3})  F5 = refresh'
         'report.noEntries' = 'No entries in this week.'
         'report.noData' = 'No data available.'
         'todoReport.title' = 'Todo report (Markdown)  F5 = refresh'
@@ -1954,7 +1955,7 @@ function Start-TrayApp {
     $contextMenu = New-Object System.Windows.Forms.ContextMenuStrip
 
     $def = @(
-        @("menu.report", { Start-Report }), @("menu.addTask", { Add-Task }), @("menu.remTask", { Remove-Task }),
+        @("menu.addTask", { Add-Task }), @("menu.remTask", { Remove-Task }), @("menu.report", { Start-Report }), $null,
         @("menu.addCat", { Add-CategoryOrSubcategory }), @("menu.remCat", { Remove-CategoryOrSubcategory }), $null,
         @("menu.addTodo", { Add-Todo }), @("menu.todos", { Show-Todos }), @("menu.todoReport", { Start-TodoReport }), $null,
         @("menu.export", { Export-Reports }), @("menu.settings", { Start-Settings }), $null,

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-timeTracker - zeiterfassung.py (Linux, Python 3 + GTK 3)            Version 2.5.1
+timeTracker - zeiterfassung.py (Linux, Python 3 + GTK 3)            Version 2.5.2
 
 Arbeitszeit- und Todo-Verwaltung als Tray-Anwendung. Gleiche Datendateien und Formate
 wie windows/zeiterfassung.ps1, damit beide Varianten parallel auf demselben
@@ -32,7 +32,7 @@ import sys
 import time
 import uuid
 
-VERSION = "2.5.1"
+VERSION = "2.5.2"
 
 # -----------------------------------------------------------------------------
 # Pfade
@@ -71,7 +71,7 @@ def log(msg):
 STRINGS = {
     "de": {
         "app.title": "Arbeitszeit",
-        "menu.report": "Report", "menu.addTask": "Task hinzufügen",
+        "menu.report": "Task-Report", "menu.addTask": "Task hinzufügen",
         "menu.addCat": "Kategorie/Unterkategorie hinzufügen", "menu.remCat": "Kategorie/Unterkategorie entfernen",
         "menu.addTodo": "Todo hinzufügen", "menu.todos": "Todos anzeigen", "menu.todoReport": "Todo-Report",
         "menu.export": "Reports exportieren", "menu.settings": "Einstellungen",
@@ -96,7 +96,7 @@ STRINGS = {
         "cat.remSelect": "Kategorie zum Entfernen wählen", "cat.remSub": "Unterkategorie entfernen",
         "cat.remAll": "[Kategorie vollständig entfernen]",
         "week.select": "Woche wählen", "week.label": "KW {0} / {1}   ({2} .. {3})",
-        "report.title": "Report - KW {0}: {1}  ({2} .. {3})  F5 = aktualisieren",
+        "report.title": "Task-Report - KW {0}: {1}  ({2} .. {3})  F5 = aktualisieren",
         "report.noEntries": "Keine Einträge in dieser Woche.", "report.noData": "Keine Daten vorhanden.",
         "todoReport.title": "Todo-Report (Markdown)  F5 = aktualisieren",
         "todoReport.kw": "# KW {0}", "todoReport.week": "## Woche", "todoReport.month": "## Monat ({0})",
@@ -157,7 +157,7 @@ STRINGS = {
     },
     "en": {
         "app.title": "Work time",
-        "menu.report": "Report", "menu.addTask": "Add task",
+        "menu.report": "Task report", "menu.addTask": "Add task",
         "menu.addCat": "Add category/subcategory", "menu.remCat": "Remove category/subcategory",
         "menu.addTodo": "Add todo", "menu.todos": "Show todos", "menu.todoReport": "Todo report",
         "menu.export": "Export reports", "menu.settings": "Settings",
@@ -182,7 +182,7 @@ STRINGS = {
         "cat.remSelect": "Select category to remove", "cat.remSub": "Remove subcategory",
         "cat.remAll": "[Remove entire category]",
         "week.select": "Select week", "week.label": "CW {0} / {1}   ({2} .. {3})",
-        "report.title": "Report - CW {0}: {1}  ({2} .. {3})  F5 = refresh",
+        "report.title": "Task report - CW {0}: {1}  ({2} .. {3})  F5 = refresh",
         "report.noEntries": "No entries in this week.", "report.noData": "No data available.",
         "todoReport.title": "Todo report (Markdown)  F5 = refresh",
         "todoReport.kw": "# CW {0}", "todoReport.week": "## Week", "todoReport.month": "## Month ({0})",
@@ -2002,9 +2002,10 @@ def action_export():
 # Menü (Tray und Tastatur-Dialog)
 # -----------------------------------------------------------------------------
 MENU = [
-    ("menu.report", action_report),
     ("menu.addTask", action_add_task),
     ("menu.remTask", action_remove_task),
+    ("menu.report", action_report),
+    None,
     ("menu.addCat", action_add_category),
     ("menu.remCat", action_remove_category),
     None,

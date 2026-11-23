@@ -10,9 +10,9 @@ werden Fehler in `%APPDATA%\Zeiterfassung\zeiterfassung.log` protokolliert.
 
 | Menüpunkt | Funktion |
 |---|---|
-| Report | Wochen-Report einer gewählten Woche anzeigen |
 | Task hinzufügen | Arbeitszeit buchen |
 | Task entfernen | nicht mehr benötigte gespeicherte Tasks löschen |
+| Task-Report | Wochen-Report einer gewählten Woche anzeigen |
 | Kategorie/Unterkategorie hinzufügen / entfernen | Struktur pflegen |
 | Todo hinzufügen / Todos anzeigen / Todo-Report | Todos verwalten |
 | Reports exportieren | Wochen-Report und Todo-Report als Dateien speichern |
@@ -68,9 +68,9 @@ Jeder Eintrag landet sofort in `worklogs/<Montag der Woche>_worklog.csv`.
 aus der Auswahlliste (`tasks.json`); bereits gebuchte Einträge im Worklog bleiben unverändert.
 Danach wird die Liste der verbleibenden Tasks erneut angezeigt, **Esc** beendet.
 
-## Report
+## Task-Report
 
-**Report** → Woche wählen (die aktuelle Woche ist vorausgewählt; Anzeige `KW 45 / 2026 (2026-11-02 .. 2026-11-08)`).
+**Task-Report** → Woche wählen (die aktuelle Woche ist vorausgewählt; Anzeige `KW 45 / 2026 (2026-11-02 .. 2026-11-08)`).
 Einträge mit gleichem Datum, gleicher Kategorie, Unterkategorie und Beschreibung werden summiert.
 Der Fenstertitel zeigt die Wochensumme.
 
