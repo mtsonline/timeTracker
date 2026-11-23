@@ -4,7 +4,9 @@
 
 timeTracker läuft im Infobereich (Tray). Ein Klick auf das Symbol oder **Strg+Alt+Z** öffnet das
 Menü. Das Symbol zeigt die heute erfasste Zeit (Windows: Tooltip, Linux: Text neben dem Symbol);
-sie wird nach jedem Eintrag und zusätzlich jede Minute aktualisiert (auch Einträge anderer Rechner).
+sie steht auch als oberster Eintrag im Menü und wird nach jedem Eintrag, beim Öffnen des Menüs,
+beim Darüberfahren und jede Minute aktualisiert (auch Einträge anderer Rechner). Unter Windows
+werden Fehler in `%APPDATA%\Zeiterfassung\zeiterfassung.log` protokolliert.
 
 | Menüpunkt | Funktion |
 |---|---|

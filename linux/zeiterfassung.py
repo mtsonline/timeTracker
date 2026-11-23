@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-timeTracker - zeiterfassung.py (Linux, Python 3 + GTK 3)            Version 2.5.0
+timeTracker - zeiterfassung.py (Linux, Python 3 + GTK 3)            Version 2.5.1
 
 Arbeitszeit- und Todo-Verwaltung als Tray-Anwendung. Gleiche Datendateien und Formate
 wie windows/zeiterfassung.ps1, damit beide Varianten parallel auf demselben
@@ -32,7 +32,7 @@ import sys
 import time
 import uuid
 
-VERSION = "2.5.0"
+VERSION = "2.5.1"
 
 # -----------------------------------------------------------------------------
 # Pfade
@@ -2057,6 +2057,7 @@ class TrayApp:
                 self._add(m[0], lambda _i, fn=m[1]: self._run_action(fn))
         self.menu.append(Gtk.SeparatorMenuItem())
         self._add("menu.exit", lambda *_: Gtk.main_quit())   # nichts speichern: alles ist schon geschrieben
+        self.menu.connect("show", lambda *_: self.update_text())   # Tagessumme beim Öffnen neu berechnen
         self.menu.show_all()
 
     def _run_action(self, fn):

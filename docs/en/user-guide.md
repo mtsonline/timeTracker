@@ -4,7 +4,9 @@
 
 timeTracker lives in the system tray. Clicking the icon or pressing **Ctrl+Alt+Z** opens the menu.
 The icon shows the time logged today (Windows: tooltip, Linux: label next to the icon); it is
-updated after every entry and additionally every minute (including entries from other computers).
+also shown as the first menu item and is updated after every entry, when the menu opens, when
+hovering over the icon and every minute (including entries from other computers). On Windows,
+errors are logged to `%APPDATA%\Zeiterfassung\zeiterfassung.log`.
 
 | Menu item | Function |
 |---|---|

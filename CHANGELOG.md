@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.1 – 2026-11-23
+- Windows: today's total in the tray tooltip was not always refreshed. It is now also recalculated
+  when the menu opens (shown as the first, greyed-out menu item) and when hovering over the icon;
+  errors in event handlers are logged to `%APPDATA%\Zeiterfassung\zeiterfassung.log`
+- Linux: today's total is recalculated when the menu opens
+
 ## 2.5.0 – 2026-11-23
 - Duration dialog: focus on minutes; via Tab week, day, time (default: now) and custom fields –
   allows retroactive entries (up to 52 weeks back); also used when completing a todo

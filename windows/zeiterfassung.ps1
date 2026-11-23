@@ -1,4 +1,4 @@
-﻿# timeTracker - zeiterfassung.ps1 (Windows, PowerShell 5.1+)        Version 2.5.0
+﻿# timeTracker - zeiterfassung.ps1 (Windows, PowerShell 5.1+)        Version 2.5.1
 #
 # Arbeitszeit- und Todo-Verwaltung als Tray-Anwendung. Gleiche Datendateien und Formate wie
 # linux/zeiterfassung.py, damit beide Varianten parallel auf demselben (Nextcloud-)Ordner arbeiten.
@@ -10,6 +10,8 @@
 #
 # Lizenz: MIT (siehe LICENSE)
 #
+# 2.5.1  Tagessumme im Tray robuster: Neuberechnung beim Öffnen des Menüs (oberster Eintrag) und
+#        beim Darüberfahren; Fehler werden in %APPDATA%\Zeiterfassung\zeiterfassung.log protokolliert
 # 2.5.0  Eintrags-Dialog (Dauer + Woche/Tag/Uhrzeit/eigene Felder, rückwirkend), Spalten als Checkliste,
 #        Task entfernen, alphabetische Sortierung, Sonderpunkte unten, "Heute neu berechnen" entfällt
 # 2.4.0  Sprache Deutsch/Englisch; Spalten von Worklog-CSV/Report und Todo-Report frei konfigurierbar
@@ -76,7 +78,9 @@ $global:categories   = @{}
 $global:taskCatalog  = @{}
 $global:lastSelectedIndices = @{}
 $global:todos = @()
-$global:lastTrayMenuIndex = 0
+$global:lastTrayMenuIndex = 2   # 0 = Tagessumme (nicht anklickbar), 1 = Trennlinie
+$global:miToday = $null
+$global:lastTrayUpdate = [datetime]::MinValue
 $global:menuItems = @()
 $global:BackupKeep = 10
 $global:Utf8Bom = New-Object System.Text.UTF8Encoding($true)
@@ -931,11 +935,26 @@ function Get-TodayTotals() {
     foreach ($x in (Read-WorklogRows (Get-WeekFile $today) @((Load-Columns).Worklog)).Rows) { if ($x.Date -eq $today) { $sum += $x.Minutes } }
     return $sum
 }
+# Fehler in Ereignis-Handlern (Menü, Timer) zeigt PowerShell ohne Konsole nicht an -> Logdatei
+function Write-ErrorLog([string]$where, $err) {
+    try {
+        if (-not (Test-Path $settingsDir)) { New-Item -ItemType Directory -Path $settingsDir -Force | Out-Null }
+        $logFile = Join-Path $settingsDir "zeiterfassung.log"
+        if ((Test-Path $logFile) -and (Get-Item $logFile).Length -gt 200KB) { Move-Item $logFile ($logFile + ".old") -Force }
+        $msg = "{0:yyyy-MM-dd HH:mm:ss} [{1}] {2}`r`n{3}`r`n" -f (Get-Date), $where, $err.Exception.Message, $err.ScriptStackTrace
+        [System.IO.File]::AppendAllText($logFile, $msg, [System.Text.Encoding]::UTF8)
+        Log ("FEHLER {0}: {1}" -f $where, $err.Exception.Message)
+    } catch {}
+}
+# Tagessumme neu berechnen: Tooltip und oberster Menüeintrag
 function Update-TrayText() {
-    if ($global:trayIcon) {
+    try {
         $mins = Get-TodayTotals
-        Set-TrayStatus (T "tray.today" $mins (To-HhMm $mins))
-    }
+        $text = T "tray.today" $mins (To-HhMm $mins)
+        if ($global:trayIcon) { Set-TrayStatus $text }
+        if ($global:miToday) { $global:miToday.Text = $text }
+        $global:lastTrayUpdate = Get-Date
+    } catch { Write-ErrorLog "Update-TrayText" $_ }
 }
 
 # Report im konfigurierten Spaltenlayout: Zeilen mit gleichen Werten (außer Dauer) werden summiert.
@@ -1517,7 +1536,7 @@ function Show-TrayContextMenu {
         $cm.Show([System.Windows.Forms.Cursor]::Position)
         try {
             if ($global:lastTrayMenuIndex -ge 0 -and $global:lastTrayMenuIndex -lt $cm.Items.Count) { $cm.Items[$global:lastTrayMenuIndex].Select() }
-            else { $cm.Items[1].Select() }
+            else { $cm.Items[2].Select() }
         } catch {}
         $cm.Focus()
     }
@@ -1943,6 +1962,10 @@ function Start-TrayApp {
     )
     $global:menuItems = @()
     $miExit = $null
+    # oberster Eintrag: heutige Summe (nicht anklickbar), wird beim Öffnen neu berechnet
+    $global:miToday = $contextMenu.Items.Add((T "app.title"))
+    $global:miToday.Enabled = $false
+    [void]$contextMenu.Items.Add("-")
     foreach ($d in $def) {
         if ($null -eq $d) { [void]$contextMenu.Items.Add("-"); continue }
         $mi = $contextMenu.Items.Add((T $d[0]))
@@ -1961,6 +1984,7 @@ function Start-TrayApp {
         $appContext.ExitThread()
     }) | Out-Null
 
+    $contextMenu.add_Opening({ Update-TrayText })
     $contextMenu.add_Opened({
         try { if ($global:lastTrayMenuIndex -ge 0 -and $global:lastTrayMenuIndex -lt $contextMenu.Items.Count) { $contextMenu.Items[$global:lastTrayMenuIndex].Select() } } catch {}
         $contextMenu.Focus()
@@ -1978,6 +2002,8 @@ function Start-TrayApp {
     $global:refreshTimer = New-Object System.Windows.Forms.Timer
     $global:refreshTimer.Interval = 60000
     $global:refreshTimer.add_Tick({ Update-TrayText })
+    # beim Darüberfahren aktualisieren, damit der Tooltip immer den aktuellen Stand zeigt (max. alle 5 s)
+    $global:trayIcon.add_MouseMove({ if (((Get-Date) - $global:lastTrayUpdate).TotalSeconds -ge 5) { Update-TrayText } })
     $global:refreshTimer.Start()
 
     # Hotkeys: Strg+Alt+Z = Menü, Strg+Alt+A = Task
