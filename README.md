@@ -12,14 +12,18 @@ and the like. Both variants use exactly the same file formats and can be used si
 ## Features
 
 - **Log work time** in a few keystrokes: category → subcategory → task → minutes
-  (global hotkeys `Ctrl+Alt+Z` menu, `Ctrl+Alt+A` add task)
+  (global hotkeys `Ctrl+Alt+Z` menu, `Ctrl+Alt+A` add task). The duration dialog also lets you
+  pick week, day and time (default: now) – so entries can be made **retroactively** – and fill in
+  your own fields
+- Lists are always sorted **alphabetically**; saved tasks can be removed again
 - **Weekly worklog** as CSV (`worklogs/<monday>_worklog.csv`) and a summarised **weekly report**
 - **Todos** per week / month / year / other, with a Markdown **todo report**;
   completing a todo books the time into the worklog
 - **Export** of the weekly report (CSV) and the todo report (Markdown) as
   `<name>_KW<nn>_<year>_…` into a folder of your choice
-- **Configurable columns** for the worklog CSV/report and the todo report: reorder, remove or add
-  columns such as *start time*, *end time*, *weekday*, *duration h:mm*, *user* or your own fields
+- **Configurable columns**: check/uncheck the worklog columns (incl. *time*, *end time*, *weekday*,
+  *duration h:mm*, *user*), reorder them, rename headers and add your own fields. Existing files are
+  only adapted when something is written to them; the todo report columns are configurable too
 - **German and English** user interface
 - **Sync-safe**: every change is read fresh from disk and written immediately (atomic replace,
   rotating backups), so several computers don't overwrite each other

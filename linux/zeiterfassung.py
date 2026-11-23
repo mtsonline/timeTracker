@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-timeTracker - zeiterfassung.py (Linux, Python 3 + GTK 3)            Version 2.4.0
+timeTracker - zeiterfassung.py (Linux, Python 3 + GTK 3)            Version 2.5.0
 
 Arbeitszeit- und Todo-Verwaltung als Tray-Anwendung. Gleiche Datendateien und Formate
 wie windows/zeiterfassung.ps1, damit beide Varianten parallel auf demselben
@@ -32,7 +32,7 @@ import sys
 import time
 import uuid
 
-VERSION = "2.4.0"
+VERSION = "2.5.0"
 
 # -----------------------------------------------------------------------------
 # Pfade
@@ -134,16 +134,25 @@ STRINGS = {
         "columns.selectField": "Spalte hinzufügen", "columns.custom": "[Eigenes Feld…]",
         "columns.customName": "Name des eigenen Feldes:", "columns.headerLabel": "Spaltenüberschrift:",
         "columns.formatLabel": "Format ({value} = Wert):",
-        "columns.noteWorklog": "Gilt für alle Rechner (columns.json im Datenordner). Neue Spalten werden ab dem nächsten Eintrag befüllt.\nEntfernte Spalten verschwinden beim nächsten Eintrag aus der aktuellen Wochendatei (Backup vorhanden).",
+        "columns.noteWorklog": "Angehakte Spalten werden geschrieben (gilt für alle Rechner: columns.json im Datenordner). Leertaste = an/abwählen.\nBestehende Dateien werden erst angepasst, wenn ein Eintrag in sie geschrieben wird: fehlende Spalten werden ergänzt, abgewählte entfernt (Backup vorhanden).",
         "columns.noteTodo": "Jede Zeile: * Spalte1 | Spalte2 | ...   Gilt für alle Rechner (columns.json im Datenordner).",
         "columns.needWorklog": "Datum und eine Dauer-Spalte (Minuten oder h:mm) sind erforderlich.",
         "columns.needOne": "Mindestens eine Spalte ist erforderlich.",
-        "field.Date": "Datum", "field.Weekday": "Wochentag", "field.StartTime": "Startzeit", "field.EndTime": "Endzeit",
+        "field.Date": "Datum", "field.Weekday": "Wochentag", "field.StartTime": "Uhrzeit", "field.EndTime": "Endzeit",
         "field.Project": "Kategorie (Projekt)", "field.Category": "Unterkategorie (Tätigkeitskategorie)",
         "field.Description": "Task (Beschreibung)", "field.Minutes": "Dauer in Minuten", "field.Hours": "Dauer h:mm",
         "field.User": "Benutzer", "field.Path": "Kategorie->Unterkategorie", "field.TodoCategory": "Kategorie",
         "field.Subcategory": "Unterkategorie", "field.Task": "Task", "field.TodoDescription": "Beschreibung (1. Zeile)",
         "field.Scope": "Zielgruppe", "field.Created": "Angelegt (Datum)", "field.Id": "Id", "field.Custom": "Eigenes Feld: {0}",
+        "menu.remTask": "Task entfernen",
+        "task.remSelect": "Task zum Entfernen wählen",
+        "task.remConfirm": "Task „{0}“ aus {1} -> {2} entfernen?\n\nBereits gebuchte Einträge bleiben erhalten.",
+        "task.none": "In dieser Unterkategorie gibt es keine gespeicherten Tasks.",
+        "entry.title": "Dauer eintragen – {0}", "entry.minutes": "Dauer (Minuten):", "entry.week": "Woche:",
+        "entry.day": "Tag:", "entry.time": "Uhrzeit (HH:MM):",
+        "columns.addCustom": "Eigenes Feld…", "columns.removeCustom": "Feld löschen",
+        "columns.onlyCustom": "Nur eigene Felder können gelöscht werden – Standardspalten bitte abwählen.",
+        "columns.colActive": "Aktiv", "columns.colField": "Spalte", "columns.colHeader": "Überschrift in der CSV",
         "weekdays": "Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag,Sonntag",
     },
     "en": {
@@ -211,16 +220,25 @@ STRINGS = {
         "columns.selectField": "Add column", "columns.custom": "[Custom field…]",
         "columns.customName": "Name of the custom field:", "columns.headerLabel": "Column header:",
         "columns.formatLabel": "Format ({value} = value):",
-        "columns.noteWorklog": "Applies to all computers (columns.json in the data folder). New columns are filled from the next entry on.\nRemoved columns disappear from the current week file with the next entry (backup available).",
+        "columns.noteWorklog": "Checked columns are written (applies to all computers: columns.json in the data folder). Space = check/uncheck.\nExisting files are only adapted when an entry is written to them: missing columns are added, unchecked ones removed (backup available).",
         "columns.noteTodo": "Each line: * column1 | column2 | ...   Applies to all computers (columns.json in the data folder).",
         "columns.needWorklog": "Date and a duration column (minutes or h:mm) are required.",
         "columns.needOne": "At least one column is required.",
-        "field.Date": "Date", "field.Weekday": "Weekday", "field.StartTime": "Start time", "field.EndTime": "End time",
+        "field.Date": "Date", "field.Weekday": "Weekday", "field.StartTime": "Time", "field.EndTime": "End time",
         "field.Project": "Category (project)", "field.Category": "Subcategory (activity category)",
         "field.Description": "Task (description)", "field.Minutes": "Duration in minutes", "field.Hours": "Duration h:mm",
         "field.User": "User", "field.Path": "Category->Subcategory", "field.TodoCategory": "Category",
         "field.Subcategory": "Subcategory", "field.Task": "Task", "field.TodoDescription": "Description (1st line)",
         "field.Scope": "Scope", "field.Created": "Created (date)", "field.Id": "Id", "field.Custom": "Custom field: {0}",
+        "menu.remTask": "Remove task",
+        "task.remSelect": "Select task to remove",
+        "task.remConfirm": "Remove task “{0}” from {1} -> {2}?\n\nEntries already logged are kept.",
+        "task.none": "There are no saved tasks in this subcategory.",
+        "entry.title": "Enter duration – {0}", "entry.minutes": "Duration (minutes):", "entry.week": "Week:",
+        "entry.day": "Day:", "entry.time": "Time (HH:MM):",
+        "columns.addCustom": "Custom field…", "columns.removeCustom": "Delete field",
+        "columns.onlyCustom": "Only custom fields can be deleted – please uncheck standard columns instead.",
+        "columns.colActive": "Active", "columns.colField": "Column", "columns.colHeader": "Header in the CSV",
         "weekdays": "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday",
     },
 }
@@ -247,11 +265,11 @@ def default_language():
 # -----------------------------------------------------------------------------
 WL_FIELDS = ["Date", "Weekday", "StartTime", "EndTime", "Project", "Category", "Description", "Minutes", "Hours", "User"]
 WL_HEADERS = {
-    "de": {"Date": "Datum", "Weekday": "Wochentag", "StartTime": "Startzeit", "EndTime": "Endzeit",
+    "de": {"Date": "Datum", "Weekday": "Wochentag", "StartTime": "Uhrzeit", "EndTime": "Endzeit",
            "Project": "Projekt oder IT-Service", "Category": "Tätigkeitskategorie",
            "Description": "kurze Tätigkeitsbeschreibung", "Minutes": "Aufwand bzw. Dauer",
            "Hours": "Dauer (h:mm)", "User": "Benutzer"},
-    "en": {"Date": "Date", "Weekday": "Weekday", "StartTime": "Start time", "EndTime": "End time",
+    "en": {"Date": "Date", "Weekday": "Weekday", "StartTime": "Time", "EndTime": "End time",
            "Project": "Project or IT service", "Category": "Activity category",
            "Description": "Short activity description", "Minutes": "Effort / duration",
            "Hours": "Duration (h:mm)", "User": "User"},
@@ -263,10 +281,19 @@ SUM_FIELDS = ("Minutes", "Hours")
 
 
 def default_columns(lang=None):
+    """Standard: die 5 Spalten des Originalformats aktiv, alle übrigen Standardfelder abgewählt."""
     lang = lang or LANG
     h = WL_HEADERS.get(lang, WL_HEADERS["de"])
-    return {"Worklog": [{"Field": f, "Header": h[f]} for f in WL_DEFAULT],
-            "Todo": [{"Field": f, "Format": fmt} for f, fmt in TODO_DEFAULT]}
+    wl = [{"Field": f, "Header": h[f], "Active": True} for f in WL_DEFAULT]
+    wl += [{"Field": f, "Header": h[f], "Active": False} for f in WL_FIELDS if f not in WL_DEFAULT]
+    return {"Worklog": wl, "Todo": [{"Field": f, "Format": fmt} for f, fmt in TODO_DEFAULT]}
+
+
+def sort_key(s):
+    """Alphabetisch, ohne Groß/Klein und mit Umlauten bei den Grundbuchstaben (Ä bei A)."""
+    import unicodedata
+    base = "".join(ch for ch in unicodedata.normalize("NFKD", s) if not unicodedata.combining(ch))
+    return (base.casefold(), s)
 
 
 def is_custom(field):
@@ -291,33 +318,47 @@ def _valid_field(f, kind):
     return f in (WL_FIELDS if kind == "Worklog" else TODO_FIELDS)
 
 
-def load_columns():
-    """Liest columns.json; fehlt sie (oder ist ein Teil ungültig) -> Standard."""
+def load_columns_all():
+    """Liest columns.json vollständig: Worklog inkl. abgewählter Spalten (Active=False).
+    Fehlende Standardfelder werden abgewählt ergänzt; fehlt die Datei -> Standard."""
     d = default_columns()
     try:
         obj = read_json(COLUMNS_FILE) or {}
     except LoadError:
         obj = {}
-    wl = []
+    wl, seen = [], set()
     for c in obj.get("Worklog") or []:
-        if isinstance(c, dict) and _valid_field(c.get("Field"), "Worklog"):
+        if isinstance(c, dict) and _valid_field(c.get("Field"), "Worklog") and c["Field"] not in seen:
             f = c["Field"]
             hdr = c.get("Header")
             if not hdr:
                 hdr = custom_name(f) if is_custom(f) else WL_HEADERS.get(LANG, WL_HEADERS["de"])[f]
-            wl.append({"Field": f, "Header": str(hdr)})
+            wl.append({"Field": f, "Header": str(hdr), "Active": c.get("Active", True) is not False})
+            seen.add(f)
+    if not any(c["Active"] for c in wl):
+        wl, seen = [], set()
+    for c in d["Worklog"]:
+        if c["Field"] not in seen:
+            wl.append(dict(c, Active=c["Active"] if not seen else False))
     td = []
     for c in obj.get("Todo") or []:
         if isinstance(c, dict) and _valid_field(c.get("Field"), "Todo"):
             td.append({"Field": c["Field"], "Format": str(c.get("Format") or "{value}")})
-    return {"Worklog": wl or d["Worklog"], "Todo": td or d["Todo"]}
+    return {"Worklog": wl, "Todo": td or d["Todo"]}
+
+
+def load_columns():
+    """Aktive Spalten: Worklog [{Field, Header}] in Reihenfolge, Todo [{Field, Format}]."""
+    a = load_columns_all()
+    wl = [{"Field": c["Field"], "Header": c["Header"]} for c in a["Worklog"] if c["Active"]]
+    return {"Worklog": wl, "Todo": a["Todo"]}
 
 
 def save_columns_part(kind, cols):
-    """Frisch laden, nur den Teil 'kind' ersetzen, speichern."""
-    cur = load_columns()
+    """Frisch laden, nur den Teil 'kind' ersetzen, speichern (Worklog inkl. Active-Flag)."""
+    cur = load_columns_all()
     cur[kind] = cols
-    write_json(COLUMNS_FILE, cur)
+    write_json(COLUMNS_FILE, {"Worklog": cur["Worklog"], "Todo": cur["Todo"]})
 
 
 class LoadError(Exception):
@@ -657,6 +698,8 @@ def header_field_map(cols):
             m[h.lower()] = f
     for f in WL_FIELDS:
         m[f.lower()] = f
+    for alias in ("startzeit", "start time"):   # Überschriften aus Version 2.4
+        m[alias] = "StartTime"
     for c in cols:
         m[c["Header"].strip().lower()] = c["Field"]
     return m
@@ -1162,19 +1205,19 @@ def select_task_triple():
     if not cats:
         msg_info(t("msg.needCats"), t("msg.hint"))
         return None
-    cat = select_dialog(t("sel.category"), sorted(cats, key=str.casefold))
+    cat = select_dialog(t("sel.category"), sorted(cats, key=sort_key))
     if not cat:
         return None
     subs = cats.get(cat, [])
     if not subs:
         msg_info(t("msg.noSubs"), t("msg.hint"))
         return None
-    sub = select_dialog(t("sel.subcategory"), sorted(subs, key=str.casefold))
+    sub = select_dialog(t("sel.subcategory"), sorted(subs, key=sort_key))
     if not sub:
         return None
     key = "%s::%s" % (cat, sub)
     new_task = t("sel.newTask")
-    sel = select_dialog(t("sel.task"), [new_task] + sorted(set(catalog.get(key, [])), key=str.casefold))
+    sel = select_dialog(t("sel.task"), sorted(set(catalog.get(key, [])), key=sort_key) + [new_task])
     if not sel:
         return None
     if sel == new_task:
@@ -1186,16 +1229,6 @@ def select_task_triple():
     else:
         desc = sel
     return {"category": cat, "subcategory": sub, "desc": desc}
-
-
-def ask_minutes():
-    s = input_dialog(t("dlg.minutes.title"), t("dlg.minutes.label"))
-    if s is None:
-        return None
-    try:
-        return int(s.strip())
-    except ValueError:
-        return 0
 
 
 def ask_custom_values(fields):
@@ -1211,26 +1244,95 @@ def ask_custom_values(fields):
     return vals
 
 
-def ask_entry_extras(minutes):
-    """Zusatzangaben für einen Worklog-Eintrag je nach Spalten (Startzeit, eigene Felder)."""
+ENTRY_WEEKS_BACK = 52   # wie weit rückwirkend eingetragen werden kann (Wochen)
+
+
+def entry_dialog(task_label):
+    """Dauer eintragen: Fokus auf Minuten; per Tab Woche, Tag, ggf. Uhrzeit und eigene Felder
+    (Standard: jetzt). Enter = speichern, Esc = abbrechen.
+    Rückgabe: {"minutes", "date" (datetime), "extras"} oder None."""
     fields = [c["Field"] for c in load_columns()["Worklog"]]
-    extras = {}
-    if "StartTime" in fields or "EndTime" in fields:
-        proposal = (dt.datetime.now() - dt.timedelta(minutes=minutes)).strftime("%H:%M")
-        while True:
-            s = input_dialog(t("dlg.start.title"), t("dlg.start.label"), proposal)
-            if s is None:
-                return None
-            clock = parse_clock(s)
-            if clock:
-                extras["StartTime"] = clock
-                break
-            msg_info(t("msg.invalidTime"), t("msg.hint"))
-    custom = ask_custom_values(fields)
-    if custom is None:
-        return None
-    extras.update(custom)
-    return extras
+    need_time = "StartTime" in fields or "EndTime" in fields
+    customs = [f for f in fields if is_custom(f)]
+    now = dt.datetime.now()
+    cur_mon = week_monday(now)
+    weeks = [cur_mon - dt.timedelta(weeks=i) for i in range(ENTRY_WEEKS_BACK + 1)]
+    day_names = t("weekdays").split(",")
+
+    d = Gtk.Dialog(title=t("entry.title", task_label))
+    _prepare(d, 460, 0)
+    d.add_button(t("btn.cancel"), Gtk.ResponseType.CANCEL)
+    d.add_button(t("btn.ok"), Gtk.ResponseType.OK)
+    d.set_default_response(Gtk.ResponseType.OK)
+    grid = Gtk.Grid(column_spacing=10, row_spacing=8)
+    grid.set_border_width(12)
+    row = [0]
+
+    def add_row(label, widget):
+        grid.attach(Gtk.Label(label=label, xalign=0), 0, row[0], 1, 1)
+        widget.set_hexpand(True)
+        grid.attach(widget, 1, row[0], 1, 1)
+        row[0] += 1
+        if isinstance(widget, Gtk.Entry):
+            widget.set_activates_default(True)
+        return widget
+
+    e_min = add_row(t("entry.minutes"), Gtk.Entry())
+    c_week = add_row(t("entry.week"), Gtk.ComboBoxText())
+    for m in weeks:
+        c_week.append_text(week_label(m))
+    c_week.set_active(0)
+    c_day = add_row(t("entry.day"), Gtk.ComboBoxText())
+
+    def fill_days(keep):
+        mon = weeks[max(0, c_week.get_active())]
+        c_day.remove_all()
+        for i in range(7):
+            c_day.append_text("%s, %s" % (day_names[i], (mon + dt.timedelta(days=i)).strftime("%Y-%m-%d")))
+        c_day.set_active(keep)
+
+    fill_days(now.weekday())
+    c_week.connect("changed", lambda *_: fill_days(max(0, c_day.get_active())))
+    e_time = None
+    if need_time:
+        e_time = add_row(t("entry.time"), Gtk.Entry())
+        e_time.set_text(now.strftime("%H:%M"))
+    e_custom = {}
+    for f in customs:
+        e_custom[f] = add_row(custom_name(f) + ":", Gtk.Entry())
+    d.get_content_area().pack_start(grid, True, True, 0)
+    d.show_all()
+    e_min.grab_focus()
+    d.present()
+    result = None
+    while True:
+        if d.run() != Gtk.ResponseType.OK:
+            break
+        try:
+            mins = int(e_min.get_text().strip())
+        except ValueError:
+            mins = 0
+        if mins <= 0:
+            msg_info(t("msg.invalidMinutes"), t("msg.hint"))
+            e_min.grab_focus()
+            continue
+        extras = {}
+        clock = None
+        if e_time is not None:
+            clock = parse_clock(e_time.get_text())
+            if not clock:
+                msg_info(t("msg.invalidTime"), t("msg.hint"))
+                e_time.grab_focus()
+                continue
+            extras["StartTime"] = clock
+        for f, e in e_custom.items():
+            extras[f] = e.get_text().strip()
+        day = weeks[max(0, c_week.get_active())] + dt.timedelta(days=max(0, c_day.get_active()))
+        hh, mm = map(int, (clock or now.strftime("%H:%M")).split(":"))
+        result = {"minutes": mins, "date": dt.datetime.combine(day, dt.time(hh, mm)), "extras": extras}
+        break
+    d.destroy()
+    return result
 
 
 @guarded
@@ -1238,23 +1340,54 @@ def action_add_task():
     sel = select_task_triple()
     if not sel:
         return
-    mins = ask_minutes()
-    if mins is None:
+    r = entry_dialog(sel["desc"])
+    if r is None:
         return
-    if mins <= 0:
-        msg_info(t("msg.invalidEntry"), t("msg.hint"))
+    write_task_entry(r["date"], sel["category"], sel["subcategory"], sel["desc"], r["minutes"], r["extras"])
+
+
+@guarded
+def action_remove_task():
+    """Gespeicherte Tasks (Katalog) löschen: Kategorie -> Unterkategorie -> Task. Gebuchte Einträge bleiben."""
+    cats, _ = load_categories()
+    if not cats:
+        msg_info(t("msg.needCats"), t("msg.hint"))
         return
-    extras = ask_entry_extras(mins)
-    if extras is None:
+    cat = select_dialog(t("sel.category"), sorted(cats, key=sort_key))
+    if not cat:
         return
-    write_task_entry(dt.datetime.now(), sel["category"], sel["subcategory"], sel["desc"], mins, extras)
+    subs = cats.get(cat, [])
+    if not subs:
+        msg_info(t("msg.noSubs"), t("msg.hint"))
+        return
+    sub = select_dialog(t("sel.subcategory"), sorted(subs, key=sort_key))
+    if not sub:
+        return
+    key = "%s::%s" % (cat, sub)
+    while True:   # nach dem Löschen wieder die (verbleibenden) Tasks zeigen
+        tasks = sorted(set(load_task_catalog().get(key, [])), key=sort_key)
+        if not tasks:
+            msg_info(t("task.none"), t("msg.hint"))
+            return
+        sel = select_dialog(t("task.remSelect"), tasks)
+        if not sel:
+            return
+        if not ask_yes_no(t("task.remConfirm", sel, cat, sub), t("menu.remTask")):
+            continue
+        catalog = load_task_catalog()   # unmittelbar vor der Änderung frisch laden
+        remaining = [x for x in catalog.get(key, []) if x != sel]
+        if remaining:
+            catalog[key] = remaining
+        else:
+            catalog.pop(key, None)
+        save_task_catalog(catalog)
 
 
 @guarded
 def action_add_category():
     cats, _ = load_categories()
     new_cat = t("cat.new")
-    sel = select_dialog(t("sel.category"), [new_cat] + sorted(cats, key=str.casefold))
+    sel = select_dialog(t("sel.category"), sorted(cats, key=sort_key) + [new_cat])
     if not sel:
         return
     if sel == new_cat:
@@ -1281,11 +1414,11 @@ def action_remove_category():
     cats, _ = load_categories()
     if not cats:
         return
-    cat = select_dialog(t("cat.remSelect"), sorted(cats, key=str.casefold))
+    cat = select_dialog(t("cat.remSelect"), sorted(cats, key=sort_key))
     if not cat:
         return
     full = t("cat.remAll")
-    sel = select_dialog(t("cat.remSub"), [full] + sorted(cats.get(cat, []), key=str.casefold))
+    sel = select_dialog(t("cat.remSub"), sorted(cats.get(cat, []), key=sort_key) + [full])
     if not sel:
         return
     cats, focus = load_categories()
@@ -1506,16 +1639,11 @@ def todo_detail(todo_id):
             if cur["Done"]:
                 msg_info(t("detail.alreadyDone"))
                 continue
-            mins = ask_minutes()
-            if mins is None:
+            er = entry_dialog(todo["Task"])
+            if er is None:
                 continue
-            if mins <= 0:
-                msg_info(t("msg.invalidMinutes"), t("msg.hint"))
-                continue
-            extras = ask_entry_extras(mins)
-            if extras is None:
-                continue
-            write_task_entry(dt.datetime.now(), todo["Category"], todo["Subcategory"], todo["Task"], mins, extras)
+            mins = er["minutes"]
+            write_task_entry(er["date"], todo["Category"], todo["Subcategory"], todo["Task"], mins, er["extras"])
             new = _get_text(tv)
             update_todo(todo_id, lambda x: x.update(Description=new, Done=True, DoneMinutes=mins,
                                                     DoneDate=dt.datetime.now()))
@@ -1527,7 +1655,130 @@ def todo_detail(todo_id):
 
 
 # -----------------------------------------------------------------------------
-# Spalten-Dialog
+# Spalten-Dialog Worklog (Checkliste)
+# -----------------------------------------------------------------------------
+@guarded
+def worklog_columns_dialog():
+    """Alle Worklog-Spalten als Liste mit Haken: an/abwählen, Reihenfolge, Überschrift, eigene Felder."""
+    cols = [dict(c) for c in load_columns_all()["Worklog"]]
+    d = Gtk.Dialog(title=t("columns.titleWorklog"))
+    _prepare(d, 820, 480)
+    d.add_button(t("btn.cancel"), Gtk.ResponseType.CANCEL)
+    d.add_button(t("btn.save"), Gtk.ResponseType.OK)
+    store = Gtk.ListStore(bool, str, str)
+    tv = Gtk.TreeView(model=store)
+    toggle = Gtk.CellRendererToggle()
+    toggle.set_activatable(True)
+    tv.append_column(Gtk.TreeViewColumn(t("columns.colActive"), toggle, active=0))
+    tv.append_column(Gtk.TreeViewColumn(t("columns.colField"), Gtk.CellRendererText(), text=1))
+    tv.append_column(Gtk.TreeViewColumn(t("columns.colHeader"), Gtk.CellRendererText(), text=2))
+    sw = Gtk.ScrolledWindow()
+    sw.set_hexpand(True)
+    sw.set_vexpand(True)
+    sw.add(tv)
+    hb = Gtk.Box(spacing=8)
+    hb.set_border_width(10)
+    hb.pack_start(sw, True, True, 0)
+    vb = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+    hb.pack_start(vb, False, False, 0)
+    box = d.get_content_area()
+    box.pack_start(hb, True, True, 0)
+    note = Gtk.Label(label=t("columns.noteWorklog"), xalign=0)
+    note.set_line_wrap(True)
+    note.get_style_context().add_class("dim-label")
+    note.set_margin_start(10)
+    note.set_margin_end(10)
+    box.pack_start(note, False, False, 6)
+
+    def cur_index():
+        _m, it = tv.get_selection().get_selected()
+        return store.get_path(it).get_indices()[0] if it is not None else -1
+
+    def refresh(sel=0):
+        store.clear()
+        for c in cols:
+            store.append([c["Active"], field_display(c["Field"]), c["Header"]])
+        if cols:
+            tv.set_cursor(Gtk.TreePath(max(0, min(sel, len(cols) - 1))), None, False)
+
+    def toggle_row(i):
+        if 0 <= i < len(cols):
+            cols[i]["Active"] = not cols[i]["Active"]
+            store[i][0] = cols[i]["Active"]
+
+    toggle.connect("toggled", lambda _r, path: toggle_row(int(path)))
+
+    def on_key(_w, ev):
+        if _is_key(ev, "space"):
+            toggle_row(cur_index())
+            return True
+        return False
+
+    tv.connect("key-press-event", on_key)
+
+    def do_move(delta):
+        i = cur_index()
+        j = i + delta
+        if i >= 0 and 0 <= j < len(cols):
+            cols[i], cols[j] = cols[j], cols[i]
+            refresh(j)
+
+    def do_header(*_):
+        i = cur_index()
+        if i < 0:
+            return
+        v = input_dialog(field_display(cols[i]["Field"]), t("columns.headerLabel"), cols[i]["Header"])
+        if v is not None and clean_field(v):
+            cols[i]["Header"] = clean_field(v)
+            refresh(i)
+
+    def do_add_custom(*_):
+        name = clean_field(input_dialog(t("columns.addCustom"), t("columns.customName")) or "").replace(":", "")
+        if not name or any(c["Field"] == "Custom:" + name for c in cols):
+            return
+        i = cur_index()
+        pos = i + 1 if i >= 0 else len(cols)
+        cols.insert(pos, {"Field": "Custom:" + name, "Header": name, "Active": True})
+        refresh(pos)
+
+    def do_remove_custom(*_):
+        i = cur_index()
+        if i < 0:
+            return
+        if not is_custom(cols[i]["Field"]):
+            msg_info(t("columns.onlyCustom"), t("msg.hint"))
+            return
+        cols.pop(i)
+        refresh(i)
+
+    def do_reset(*_):
+        cols[:] = [dict(c) for c in default_columns()["Worklog"]]
+        refresh()
+
+    for label, cb in ((t("columns.up"), lambda *_: do_move(-1)), (t("columns.down"), lambda *_: do_move(1)),
+                      (t("columns.header"), do_header), (t("columns.addCustom"), do_add_custom),
+                      (t("columns.removeCustom"), do_remove_custom), (t("columns.reset"), do_reset)):
+        b = Gtk.Button(label=label)
+        b.connect("clicked", cb)
+        vb.pack_start(b, False, False, 0)
+    tv.connect("row-activated", lambda *_: do_header())
+    refresh()
+    d.show_all()
+    tv.grab_focus()
+    while True:
+        if d.run() != Gtk.ResponseType.OK:
+            break
+        active = [c["Field"] for c in cols if c["Active"]]
+        if "Date" not in active or not ("Minutes" in active or "Hours" in active):
+            msg_info(t("columns.needWorklog"), t("msg.hint"))
+            continue
+        save_columns_part("Worklog", cols)
+        break
+    d.destroy()
+
+
+# -----------------------------------------------------------------------------
+# Spalten-Dialog (Todo-Report)
 # -----------------------------------------------------------------------------
 @guarded
 def columns_dialog(kind):
@@ -1681,7 +1932,7 @@ def settings_dialog():
     grid.attach(combo, 1, 2, 1, 1)
     bcols = Gtk.Box(spacing=8)
     b1 = Gtk.Button(label=t("settings.columnsWorklog"))
-    b1.connect("clicked", lambda *_: columns_dialog("Worklog"))
+    b1.connect("clicked", lambda *_: worklog_columns_dialog())
     b2 = Gtk.Button(label=t("settings.columnsTodo"))
     b2.connect("clicked", lambda *_: columns_dialog("Todo"))
     bcols.pack_start(b1, False, False, 0)
@@ -1753,6 +2004,7 @@ def action_export():
 MENU = [
     ("menu.report", action_report),
     ("menu.addTask", action_add_task),
+    ("menu.remTask", action_remove_task),
     ("menu.addCat", action_add_category),
     ("menu.remCat", action_remove_category),
     None,
@@ -1803,8 +2055,6 @@ class TrayApp:
                 self.menu.append(Gtk.SeparatorMenuItem())
             else:
                 self._add(m[0], lambda _i, fn=m[1]: self._run_action(fn))
-        self.menu.append(Gtk.SeparatorMenuItem())
-        self._add("menu.recalc", lambda *_: self.update_text())
         self.menu.append(Gtk.SeparatorMenuItem())
         self._add("menu.exit", lambda *_: Gtk.main_quit())   # nichts speichern: alles ist schon geschrieben
         self.menu.show_all()

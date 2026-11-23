@@ -3,17 +3,18 @@
 ## Overview
 
 timeTracker lives in the system tray. Clicking the icon or pressing **Ctrl+Alt+Z** opens the menu.
-The icon shows the time logged today (Windows: tooltip, Linux: label next to the icon).
+The icon shows the time logged today (Windows: tooltip, Linux: label next to the icon); it is
+updated after every entry and additionally every minute (including entries from other computers).
 
 | Menu item | Function |
 |---|---|
 | Report | show the weekly report of a selected week |
 | Add task | log work time |
+| Remove task | delete saved tasks you no longer need |
 | Add / remove category/subcategory | maintain the structure |
 | Add todo / Show todos / Todo report | manage todos |
 | Export reports | save weekly report and todo report as files |
 | Settings | user name, export path, language, columns |
-| Recalculate today | refresh today's total |
 | Exit | close the program (all data is already saved) |
 
 ### Keyboard
@@ -38,9 +39,36 @@ data folder, save the column configuration once – it is then stored in `column
 
 1. Open **Settings** and enter your name, export path and language.
 2. **Add category/subcategory** → *[Create new category]* → name → subcategory.
-3. **Add task** (or **Ctrl+Alt+A**): category → subcategory → task (or *[Enter new task]*) → minutes.
+3. **Add task** (or **Ctrl+Alt+A**): category → subcategory → task (or *[Enter new task]* at the
+   bottom) → duration dialog.
+
+Categories, subcategories and tasks are always sorted alphabetically (case-insensitive, accented
+letters with their base letter). Items such as *[Enter new task]* are always at the end.
+
+## Entering the duration
+
+![Duration dialog](../images/entry-dialog-linux.png)
+
+The cursor is in **Duration (minutes)** – for a normal entry just type the minutes and press
+**Enter**. Use **Tab** to reach:
+
+| Field | Default | Use |
+|---|---|---|
+| Week | current week | ↑/↓ – up to 52 weeks back |
+| Day | today | ↑/↓ – Monday to Sunday of the selected week |
+| Time | now | only shown if the *Time* or *End time* column is active; format `HH:MM` |
+| custom fields | empty | one per active custom field (e.g. “Ticket”) |
+
+**Enter** saves, **Esc** cancels. The entry is written to the file of the selected week, so
+forgotten times can be added later. The same dialog appears when a todo is marked as done.
 
 Every entry is written immediately to `worklogs/<monday of the week>_worklog.csv`.
+
+## Removing tasks
+
+**Remove task** → category → subcategory → select task → confirm. The task disappears from the
+selection list (`tasks.json`); entries already logged in the worklog stay unchanged. The list of
+remaining tasks is shown again, **Esc** ends.
 
 ## Report
 
@@ -80,22 +108,31 @@ Existing files of the same week are overwritten.
 
 ![Columns dialog](../images/columns-dialog-linux.png)
 
-**Settings → Worklog columns…** defines which columns the worklog CSV, the report and the CSV
-export contain – in which order and with which header.
+**Settings → Worklog columns…** shows all available columns as a checklist. Checked columns are
+written to the worklog CSV, the report and the CSV export – in the order shown.
+
+- **Space** or click on the checkbox: check/uncheck a column
+- **Move up / Move down**: change the order
+- **Header…** (or double-click): change the column header in the CSV
+- **Custom field…**: add a new field (e.g. “Ticket”); it is asked for in the duration dialog
+- **Delete field**: remove a custom field (standard columns can only be unchecked)
+- **Default**: restore the original format
+
+Unchecked columns keep their header, custom fields are kept and can be checked again later.
 
 | Field | Content |
 |---|---|
 | Date | `yyyy-MM-dd` (required) |
 | Weekday | e.g. “Tuesday” (in the selected language) |
-| Start time | `HH:MM` – asked for when logging (proposal: now minus duration) |
-| End time | `HH:MM` – start time + duration |
+| Time | `HH:MM` – in the duration dialog (default: now) |
+| End time | `HH:MM` – time + duration |
 | Category (project) | column “Projekt oder IT-Service” |
 | Subcategory (activity category) | column “Tätigkeitskategorie” |
 | Task (description) | column “kurze Tätigkeitsbeschreibung” |
 | Duration in minutes | column “Aufwand bzw. Dauer” |
 | Duration h:mm | e.g. `1:30` |
 | User | user name from the settings |
-| Custom field | any name, e.g. “Ticket”; the value is asked for when logging |
+| Custom field | any name, e.g. “Ticket”; the value is asked for in the duration dialog |
 
 Date and one duration column (minutes or h:mm) are required. **Default** restores the original
 format (with English interface: English headers).
@@ -104,9 +141,12 @@ Notes:
 
 - Files are recognised by their header line when read, so older weeks remain readable even if
   the columns change later.
-- With the next entry the **current** week file is rewritten in the new layout. Removed columns
-  disappear from that file (the previous version is kept in `worklogs/backups`).
-- If the start time is a column, entries with different start times are not merged in the report.
+- Changing the columns does **not** modify any existing file. Only when an entry is written to a
+  week file (also retroactively to an old week) is exactly that file converted to the current
+  layout: missing columns are added (empty for older rows), unchecked ones removed. The previous
+  version is kept in `worklogs/backups`. New week files are created in the current layout.
+- The report shows every week in the current layout, even if its file still has the old one.
+- If the time is a column, entries with different times are not merged in the report.
 
 **Settings → Todo report columns…** defines each todo line: `* column1 | column2 | …`. Every column
 has a **format** in which `{value}` stands for the value – e.g. `({value})` for the date in

@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.5.0 – 2026-11-23
+- Duration dialog: focus on minutes; via Tab week, day, time (default: now) and custom fields –
+  allows retroactive entries (up to 52 weeks back); also used when completing a todo
+- Worklog columns as a checklist in the settings (check/uncheck, order, header, custom fields);
+  unchecked columns and custom fields are remembered (`"Active": false` in `columns.json`)
+- Column “Startzeit/Start time” is now “Uhrzeit/Time” (old headers are still recognised)
+- Files are converted to the current column layout only when an entry is written to them
+- New menu item “Remove task” (delete saved tasks from the catalogue)
+- Categories, subcategories and tasks sorted alphabetically; “[Enter new task]”,
+  “[Create new category]” and “[Remove entire category]” are always the last item
+- “Recalculate today” removed (total is updated after every entry and every minute)
+
 ## 2.4.0 – 2026-11-03
 - Language setting: German / English (UI, report headings, weekdays, export file names)
 - Configurable columns for worklog CSV/report and todo report (`columns.json`, shared):

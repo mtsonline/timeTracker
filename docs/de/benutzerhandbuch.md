@@ -3,17 +3,18 @@
 ## Überblick
 
 timeTracker läuft im Infobereich (Tray). Ein Klick auf das Symbol oder **Strg+Alt+Z** öffnet das
-Menü. Das Symbol zeigt die heute erfasste Zeit (Windows: Tooltip, Linux: Text neben dem Symbol).
+Menü. Das Symbol zeigt die heute erfasste Zeit (Windows: Tooltip, Linux: Text neben dem Symbol);
+sie wird nach jedem Eintrag und zusätzlich jede Minute aktualisiert (auch Einträge anderer Rechner).
 
 | Menüpunkt | Funktion |
 |---|---|
 | Report | Wochen-Report einer gewählten Woche anzeigen |
 | Task hinzufügen | Arbeitszeit buchen |
+| Task entfernen | nicht mehr benötigte gespeicherte Tasks löschen |
 | Kategorie/Unterkategorie hinzufügen / entfernen | Struktur pflegen |
 | Todo hinzufügen / Todos anzeigen / Todo-Report | Todos verwalten |
 | Reports exportieren | Wochen-Report und Todo-Report als Dateien speichern |
 | Einstellungen | Name, Export-Pfad, Sprache, Spalten |
-| Heute neu berechnen | Tagessumme aktualisieren |
 | Beenden | Programm schließen (alle Daten sind bereits gespeichert) |
 
 ### Tastatur
@@ -34,9 +35,36 @@ In Eingabefeldern wirkt **←** nur als „zurück“, solange das Feld leer ist
 1. **Einstellungen** öffnen, Namen, Export-Pfad und Sprache eintragen.
 2. **Kategorie/Unterkategorie hinzufügen** → *[Neue Kategorie anlegen]* → Name → Unterkategorie.
 3. **Task hinzufügen** (oder **Strg+Alt+A**): Kategorie → Unterkategorie → Task (oder
-   *[Neuen Task eingeben]*) → Minuten.
+   *[Neuen Task eingeben]* ganz unten) → Dauer-Dialog.
+
+Kategorien, Unterkategorien und Tasks sind in allen Listen alphabetisch sortiert (ohne Groß/Klein,
+Umlaute beim Grundbuchstaben). Einträge wie *[Neuen Task eingeben]* stehen immer am Ende.
+
+## Dauer eintragen
+
+![Dauer eintragen](../images/entry-dialog-linux.png)
+
+Der Cursor steht im Feld **Dauer (Minuten)** – für einen normalen Eintrag einfach Minuten tippen
+und **Enter**. Mit **Tab** erreicht man:
+
+| Feld | Standard | Bedienung |
+|---|---|---|
+| Woche | aktuelle Woche | ↑/↓ – bis zu 52 Wochen zurück |
+| Tag | heute | ↑/↓ – Montag bis Sonntag der gewählten Woche |
+| Uhrzeit | jetzt | nur sichtbar, wenn die Spalte *Uhrzeit* oder *Endzeit* aktiv ist; Format `HH:MM` |
+| eigene Felder | leer | eines je aktivem eigenen Feld (z. B. „Ticket“) |
+
+**Enter** speichert, **Esc** bricht ab. Der Eintrag wird in die Wochendatei der gewählten Woche
+geschrieben – so lassen sich vergessene Zeiten nachtragen. Derselbe Dialog erscheint beim
+Erledigen eines Todos.
 
 Jeder Eintrag landet sofort in `worklogs/<Montag der Woche>_worklog.csv`.
+
+## Task entfernen
+
+**Task entfernen** → Kategorie → Unterkategorie → Task wählen → bestätigen. Der Task verschwindet
+aus der Auswahlliste (`tasks.json`); bereits gebuchte Einträge im Worklog bleiben unverändert.
+Danach wird die Liste der verbleibenden Tasks erneut angezeigt, **Esc** beendet.
 
 ## Report
 
@@ -78,22 +106,33 @@ Vorhandene Dateien derselben Woche werden überschrieben.
 
 ![Spalten-Dialog](../images/columns-dialog-linux.png)
 
-**Einstellungen → Spalten Worklog…** legt fest, welche Spalten die Worklog-CSV, der Report und der
-CSV-Export haben – in welcher Reihenfolge und mit welcher Überschrift.
+**Einstellungen → Spalten Worklog…** zeigt alle verfügbaren Spalten als Liste mit Haken.
+Angehakte Spalten werden in die Worklog-CSV, den Report und den CSV-Export geschrieben – in der
+angezeigten Reihenfolge.
+
+- **Leertaste** oder Klick auf den Haken: Spalte an- oder abwählen
+- **Nach oben / Nach unten**: Reihenfolge ändern
+- **Überschrift…** (oder Doppelklick): Spaltenüberschrift in der CSV ändern
+- **Eigenes Feld…**: neues Feld anlegen (z. B. „Ticket“); es wird im Dauer-Dialog abgefragt
+- **Feld löschen**: eigenes Feld entfernen (Standardspalten werden nur abgewählt)
+- **Standard**: ursprüngliches Format wiederherstellen
+
+Abgewählte Spalten behalten ihre Überschrift, eigene Felder bleiben erhalten und können später
+wieder angehakt werden.
 
 | Feld | Inhalt |
 |---|---|
 | Datum | `yyyy-MM-dd` (Pflicht) |
 | Wochentag | z. B. „Dienstag“ (in der eingestellten Sprache) |
-| Startzeit | `HH:MM` – wird beim Buchen abgefragt (Vorschlag: jetzt minus Dauer) |
-| Endzeit | `HH:MM` – Startzeit + Dauer |
+| Uhrzeit | `HH:MM` – im Dauer-Dialog (Standard: jetzt) |
+| Endzeit | `HH:MM` – Uhrzeit + Dauer |
 | Kategorie (Projekt) | Spalte „Projekt oder IT-Service“ |
 | Unterkategorie (Tätigkeitskategorie) | Spalte „Tätigkeitskategorie“ |
 | Task (Beschreibung) | Spalte „kurze Tätigkeitsbeschreibung“ |
 | Dauer in Minuten | Spalte „Aufwand bzw. Dauer“ |
 | Dauer h:mm | z. B. `1:30` |
 | Benutzer | Name aus den Einstellungen |
-| Eigenes Feld | beliebiger Name, z. B. „Ticket“; der Wert wird beim Buchen abgefragt |
+| Eigenes Feld | beliebiger Name, z. B. „Ticket“; der Wert wird im Dauer-Dialog abgefragt |
 
 Datum und eine Dauer-Spalte (Minuten oder h:mm) sind Pflicht. **Standard** stellt das
 ursprüngliche Format wieder her:
@@ -106,9 +145,13 @@ Hinweise:
   Sprache einen Datenordner, die Spalten einmal speichern – dann gilt `columns.json` für alle.
 - Dateien werden beim Lesen über ihre Kopfzeile erkannt. Ältere Wochen bleiben daher lesbar,
   auch wenn sich die Spalten später ändern.
-- Beim nächsten Eintrag wird die **aktuelle** Wochendatei im neuen Layout geschrieben. Entfernte
-  Spalten verschwinden dabei aus dieser Datei (der vorige Stand liegt in `worklogs/backups`).
-- Ist die Startzeit eine Spalte, werden Einträge mit unterschiedlicher Startzeit im Report nicht
+- Das Ändern der Spalten verändert **keine** bestehende Datei. Erst wenn ein Eintrag in eine
+  Wochendatei geschrieben wird (auch rückwirkend in eine alte Woche), wird genau diese Datei ins
+  aktuelle Layout gebracht: fehlende Spalten werden ergänzt (bei alten Zeilen leer), abgewählte
+  entfernt. Der vorige Stand liegt in `worklogs/backups`. Neue Wochendateien entstehen gleich im
+  aktuellen Layout.
+- Der Report zeigt jede Woche im aktuellen Layout, auch wenn die Datei noch das alte hat.
+- Ist die Uhrzeit eine Spalte, werden Einträge mit unterschiedlicher Uhrzeit im Report nicht
   zusammengefasst.
 
 **Einstellungen → Spalten Todo-Report…** legt den Aufbau jeder Todo-Zeile fest:

@@ -8,20 +8,24 @@ parallel genutzt werden.
 
 🇬🇧 [English version](README.md)
 
-![Wochenauswahl](docs/images/week-selection-linux.png)
+![Dauer eintragen](docs/images/entry-dialog-linux.png)
 
 ## Funktionen
 
 - **Arbeitszeit erfassen** mit wenigen Tasten: Kategorie → Unterkategorie → Task → Minuten
-  (globale Tastenkürzel `Strg+Alt+Z` Menü, `Strg+Alt+A` Task hinzufügen)
+  (globale Tastenkürzel `Strg+Alt+Z` Menü, `Strg+Alt+A` Task hinzufügen). Im Dauer-Dialog sind
+  zusätzlich Woche, Tag und Uhrzeit wählbar (Standard: jetzt) – also auch **rückwirkende** Einträge –
+  sowie eigene Felder
+- Listen sind immer **alphabetisch** sortiert; gespeicherte Tasks lassen sich wieder entfernen
 - **Wochen-Worklog** als CSV (`worklogs/<Montag>_worklog.csv`) und zusammengefasster **Wochen-Report**
 - **Todos** für Woche / Monat / Jahr / Sonstiges mit **Todo-Report** in Markdown;
   beim Erledigen wird die Zeit ins Worklog gebucht
 - **Export** von Wochen-Report (CSV) und Todo-Report (Markdown) als `<Name>_KW<nn>_<Jahr>_…`
   in einen frei wählbaren Ordner
-- **Frei konfigurierbare Spalten** für Worklog-CSV/Report und Todo-Report: Reihenfolge ändern,
-  Spalten weglassen oder hinzufügen, z. B. *Startzeit*, *Endzeit*, *Wochentag*, *Dauer h:mm*,
-  *Benutzer* oder eigene Felder
+- **Konfigurierbare Spalten**: Worklog-Spalten an- und abwählen (inkl. *Uhrzeit*, *Endzeit*,
+  *Wochentag*, *Dauer h:mm*, *Benutzer*), Reihenfolge und Überschriften ändern, eigene Felder
+  hinzufügen. Bestehende Dateien werden erst angepasst, wenn in sie geschrieben wird; auch die
+  Spalten des Todo-Reports sind einstellbar
 - Oberfläche auf **Deutsch und Englisch**
 - **Sync-sicher**: jede Änderung wird frisch aus der Datei gelesen und sofort geschrieben
   (atomarer Austausch, rotierende Backups); mehrere Rechner überschreiben sich nicht gegenseitig

@@ -1,4 +1,4 @@
-﻿# timeTracker - zeiterfassung.ps1 (Windows, PowerShell 5.1+)        Version 2.4.0
+﻿# timeTracker - zeiterfassung.ps1 (Windows, PowerShell 5.1+)        Version 2.5.0
 #
 # Arbeitszeit- und Todo-Verwaltung als Tray-Anwendung. Gleiche Datendateien und Formate wie
 # linux/zeiterfassung.py, damit beide Varianten parallel auf demselben (Nextcloud-)Ordner arbeiten.
@@ -10,6 +10,8 @@
 #
 # Lizenz: MIT (siehe LICENSE)
 #
+# 2.5.0  Eintrags-Dialog (Dauer + Woche/Tag/Uhrzeit/eigene Felder, rückwirkend), Spalten als Checkliste,
+#        Task entfernen, alphabetische Sortierung, Sonderpunkte unten, "Heute neu berechnen" entfällt
 # 2.4.0  Sprache Deutsch/Englisch; Spalten von Worklog-CSV/Report und Todo-Report frei konfigurierbar
 #        (Startzeit, Endzeit, Wochentag, Dauer h:mm, Benutzer, eigene Felder); columns.json
 # 2.3.0  Einstellungen (Name, Export-Pfad), Reports exportieren, KW zuerst in der Wochenauswahl
@@ -206,13 +208,13 @@ $global:Strings = @{
         'columns.customName' = 'Name des eigenen Feldes:'
         'columns.headerLabel' = 'Spaltenüberschrift:'
         'columns.formatLabel' = 'Format ({value} = Wert):'
-        'columns.noteWorklog' = "Gilt für alle Rechner (columns.json im Datenordner). Neue Spalten werden ab dem nächsten Eintrag befüllt.`r`nEntfernte Spalten verschwinden beim nächsten Eintrag aus der aktuellen Wochendatei (Backup vorhanden)."
+        'columns.noteWorklog' = "Angehakte Spalten werden geschrieben (gilt für alle Rechner: columns.json im Datenordner). Leertaste = an/abwählen.`r`nBestehende Dateien werden erst angepasst, wenn ein Eintrag in sie geschrieben wird: fehlende Spalten werden ergänzt, abgewählte entfernt (Backup vorhanden)."
         'columns.noteTodo' = 'Jede Zeile: * Spalte1 | Spalte2 | ...   Gilt für alle Rechner (columns.json im Datenordner).'
         'columns.needWorklog' = 'Datum und eine Dauer-Spalte (Minuten oder h:mm) sind erforderlich.'
         'columns.needOne' = 'Mindestens eine Spalte ist erforderlich.'
         'field.Date' = 'Datum'
         'field.Weekday' = 'Wochentag'
-        'field.StartTime' = 'Startzeit'
+        'field.StartTime' = 'Uhrzeit'
         'field.EndTime' = 'Endzeit'
         'field.Project' = 'Kategorie (Projekt)'
         'field.Category' = 'Unterkategorie (Tätigkeitskategorie)'
@@ -229,6 +231,21 @@ $global:Strings = @{
         'field.Created' = 'Angelegt (Datum)'
         'field.Id' = 'Id'
         'field.Custom' = 'Eigenes Feld: {0}'
+        'menu.remTask' = 'Task entfernen'
+        'task.remSelect' = 'Task zum Entfernen wählen'
+        'task.remConfirm' = "Task `„{0}`“ aus {1} -> {2} entfernen?`r`n`r`nBereits gebuchte Einträge bleiben erhalten."
+        'task.none' = 'In dieser Unterkategorie gibt es keine gespeicherten Tasks.'
+        'entry.title' = 'Dauer eintragen – {0}'
+        'entry.minutes' = 'Dauer (Minuten):'
+        'entry.week' = 'Woche:'
+        'entry.day' = 'Tag:'
+        'entry.time' = 'Uhrzeit (HH:MM):'
+        'columns.addCustom' = 'Eigenes Feld…'
+        'columns.removeCustom' = 'Feld löschen'
+        'columns.onlyCustom' = 'Nur eigene Felder können gelöscht werden – Standardspalten bitte abwählen.'
+        'columns.colActive' = 'Aktiv'
+        'columns.colField' = 'Spalte'
+        'columns.colHeader' = 'Überschrift in der CSV'
         'weekdays' = 'Montag,Dienstag,Mittwoch,Donnerstag,Freitag,Samstag,Sonntag'
     }
     'en' = @{
@@ -346,13 +363,13 @@ $global:Strings = @{
         'columns.customName' = 'Name of the custom field:'
         'columns.headerLabel' = 'Column header:'
         'columns.formatLabel' = 'Format ({value} = value):'
-        'columns.noteWorklog' = "Applies to all computers (columns.json in the data folder). New columns are filled from the next entry on.`r`nRemoved columns disappear from the current week file with the next entry (backup available)."
+        'columns.noteWorklog' = "Checked columns are written (applies to all computers: columns.json in the data folder). Space = check/uncheck.`r`nExisting files are only adapted when an entry is written to them: missing columns are added, unchecked ones removed (backup available)."
         'columns.noteTodo' = 'Each line: * column1 | column2 | ...   Applies to all computers (columns.json in the data folder).'
         'columns.needWorklog' = 'Date and a duration column (minutes or h:mm) are required.'
         'columns.needOne' = 'At least one column is required.'
         'field.Date' = 'Date'
         'field.Weekday' = 'Weekday'
-        'field.StartTime' = 'Start time'
+        'field.StartTime' = 'Time'
         'field.EndTime' = 'End time'
         'field.Project' = 'Category (project)'
         'field.Category' = 'Subcategory (activity category)'
@@ -369,6 +386,21 @@ $global:Strings = @{
         'field.Created' = 'Created (date)'
         'field.Id' = 'Id'
         'field.Custom' = 'Custom field: {0}'
+        'menu.remTask' = 'Remove task'
+        'task.remSelect' = 'Select task to remove'
+        'task.remConfirm' = "Remove task `“{0}`” from {1} -> {2}?`r`n`r`nEntries already logged are kept."
+        'task.none' = 'There are no saved tasks in this subcategory.'
+        'entry.title' = 'Enter duration – {0}'
+        'entry.minutes' = 'Duration (minutes):'
+        'entry.week' = 'Week:'
+        'entry.day' = 'Day:'
+        'entry.time' = 'Time (HH:MM):'
+        'columns.addCustom' = 'Custom field…'
+        'columns.removeCustom' = 'Delete field'
+        'columns.onlyCustom' = 'Only custom fields can be deleted – please uncheck standard columns instead.'
+        'columns.colActive' = 'Active'
+        'columns.colField' = 'Column'
+        'columns.colHeader' = 'Header in the CSV'
         'weekdays' = 'Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'
     }
 }
@@ -536,8 +568,8 @@ function Save-Settings($s) {
 # -----------------------------------------------------------------------------
 $global:WlFields   = @("Date", "Weekday", "StartTime", "EndTime", "Project", "Category", "Description", "Minutes", "Hours", "User")
 $global:WlHeaders  = @{
-    de = @{ Date = "Datum"; Weekday = "Wochentag"; StartTime = "Startzeit"; EndTime = "Endzeit"; Project = "Projekt oder IT-Service"; Category = "Tätigkeitskategorie"; Description = "kurze Tätigkeitsbeschreibung"; Minutes = "Aufwand bzw. Dauer"; Hours = "Dauer (h:mm)"; User = "Benutzer" }
-    en = @{ Date = "Date"; Weekday = "Weekday"; StartTime = "Start time"; EndTime = "End time"; Project = "Project or IT service"; Category = "Activity category"; Description = "Short activity description"; Minutes = "Effort / duration"; Hours = "Duration (h:mm)"; User = "User" }
+    de = @{ Date = "Datum"; Weekday = "Wochentag"; StartTime = "Uhrzeit"; EndTime = "Endzeit"; Project = "Projekt oder IT-Service"; Category = "Tätigkeitskategorie"; Description = "kurze Tätigkeitsbeschreibung"; Minutes = "Aufwand bzw. Dauer"; Hours = "Dauer (h:mm)"; User = "Benutzer" }
+    en = @{ Date = "Date"; Weekday = "Weekday"; StartTime = "Time"; EndTime = "End time"; Project = "Project or IT service"; Category = "Activity category"; Description = "Short activity description"; Minutes = "Effort / duration"; Hours = "Duration (h:mm)"; User = "User" }
 }
 $global:WlDefault   = @("Date", "Project", "Category", "Description", "Minutes")
 $global:TodoFields  = @("Path", "TodoCategory", "Subcategory", "Task", "TodoDescription", "Scope", "Created", "Id")
@@ -551,9 +583,11 @@ function Get-FieldDisplay([string]$f) {
     if (Test-CustomField $f) { return (T "field.Custom" (Get-CustomName $f)) }
     return (T ("field." + $f))
 }
+# Standard: die 5 Spalten des Originalformats aktiv, alle übrigen Standardfelder abgewählt
 function Get-DefaultColumns {
     $h = Get-WlHeaderTable
-    $wl = @(); foreach ($f in $global:WlDefault) { $wl += [ordered]@{ Field = $f; Header = $h[$f] } }
+    $wl = @(); foreach ($f in $global:WlDefault) { $wl += [ordered]@{ Field = $f; Header = $h[$f]; Active = $true } }
+    foreach ($f in $global:WlFields) { if ($global:WlDefault -cnotcontains $f) { $wl += [ordered]@{ Field = $f; Header = $h[$f]; Active = $false } } }
     $td = @(); foreach ($p in $global:TodoDefault) { $td += [ordered]@{ Field = $p[0]; Format = $p[1] } }
     return @{ Worklog = $wl; Todo = $td }
 }
@@ -563,20 +597,21 @@ function Test-ValidField([string]$f, [string]$kind) {
     if ($kind -eq "Worklog") { return ($global:WlFields -ccontains $f) }
     return ($global:TodoFields -ccontains $f)
 }
-# Rückgabe: @{ Worklog = @(ordered{Field;Header}); Todo = @(ordered{Field;Format}) }
-function Load-Columns {
+# Vollständig: Worklog inkl. abgewählter Spalten (Active=$false); fehlende Standardfelder abgewählt ergänzt
+function Load-ColumnsAll {
     $d = Get-DefaultColumns
     $r = SafeRead-Json -path $columnsFile
     $obj = if ($r.Ok) { $r.Obj } else { $null }
-    $wl = @(); $td = @()
+    $wl = @(); $seen = @{}; $td = @()
     if ($obj) {
         foreach ($c in @($obj.Worklog)) {
             if ($null -eq $c) { continue }
             $f = [string]$c.Field
-            if (-not (Test-ValidField $f "Worklog")) { continue }
+            if (-not (Test-ValidField $f "Worklog") -or $seen.ContainsKey($f)) { continue }
             $hdr = [string]$c.Header
             if (-not $hdr) { if (Test-CustomField $f) { $hdr = Get-CustomName $f } else { $hdr = (Get-WlHeaderTable)[$f] } }
-            $wl += [ordered]@{ Field = $f; Header = $hdr }
+            $wl += [ordered]@{ Field = $f; Header = $hdr; Active = (-not ($c.Active -eq $false)) }
+            $seen[$f] = $true
         }
         foreach ($c in @($obj.Todo)) {
             if ($null -eq $c) { continue }
@@ -587,12 +622,22 @@ function Load-Columns {
             $td += [ordered]@{ Field = $f; Format = $fmt }
         }
     }
-    if ($wl.Count -eq 0) { $wl = $d.Worklog }
+    if (@($wl | Where-Object { $_.Active }).Count -eq 0) { $wl = @(); $seen = @{} }
+    $hadAny = $seen.Count -gt 0
+    foreach ($c in $d.Worklog) {
+        if (-not $seen.ContainsKey($c.Field)) { $wl += [ordered]@{ Field = $c.Field; Header = $c.Header; Active = ($c.Active -and -not $hadAny) } }
+    }
     if ($td.Count -eq 0) { $td = $d.Todo }
     return @{ Worklog = $wl; Todo = $td }
 }
+# Aktive Spalten: @{ Worklog = @(ordered{Field;Header}); Todo = @(ordered{Field;Format}) }
+function Load-Columns {
+    $a = Load-ColumnsAll
+    $wl = @(); foreach ($c in $a.Worklog) { if ($c.Active) { $wl += [ordered]@{ Field = $c.Field; Header = $c.Header } } }
+    return @{ Worklog = $wl; Todo = $a.Todo }
+}
 function Save-ColumnsPart([string]$kind, $cols) {
-    $cur = Load-Columns
+    $cur = Load-ColumnsAll
     $cur[$kind] = @($cols)
     $ok = SafeWrite-Json -targetPath $columnsFile -obj ([ordered]@{ Worklog = @($cur.Worklog); Todo = @($cur.Todo) }) -Depth 5
     if (-not $ok) { Show-SaveError $columnsFile }
@@ -773,6 +818,7 @@ function Get-HeaderFieldMap($cols) {
     $m = @{}
     foreach ($lang in @("en", "de")) { foreach ($k in $global:WlHeaders[$lang].Keys) { $m[$global:WlHeaders[$lang][$k].ToLowerInvariant()] = $k } }
     foreach ($f in $global:WlFields) { $m[$f.ToLowerInvariant()] = $f }
+    foreach ($alias in @("startzeit", "start time")) { $m[$alias] = "StartTime" }   # Überschriften aus Version 2.4
     foreach ($c in $cols) { $m[([string]$c.Header).Trim().ToLowerInvariant()] = $c.Field }
     return $m
 }
@@ -1085,20 +1131,20 @@ function Show-TextWindow([scriptblock]$GetTitle, [scriptblock]$GetText) {
 function Show-SelectTaskTriple() {
     if (-not (Load-Categories))  { Show-LoadError $catsFile; return $null }
     if (-not (Load-TaskCatalog)) { Show-LoadError $taskCatalogFile; return $null }
-    $cats = @($global:categories.Keys | Sort-Object)
+    $cats = Sort-Alpha $global:categories.Keys
     if ($cats.Count -eq 0) { Show-Info (T "msg.needCats") (T "msg.hint"); return $null }
     $cat = Show-SelectionDialog (T "sel.category") $cats
     if (-not $cat) { return $null }
     $subs = @()
     if ($global:categories.ContainsKey($cat)) { $subs = @($global:categories[$cat]) }
     if ($subs.Count -eq 0) { Show-Info (T "msg.noSubs") (T "msg.hint"); return $null }
-    $sub = Show-SelectionDialog (T "sel.subcategory") ($subs | Sort-Object)
+    $sub = Show-SelectionDialog (T "sel.subcategory") (Sort-Alpha $subs)
     if (-not $sub) { return $null }
     $key = "${cat}::${sub}"
     $taskList = @()
     if ($global:taskCatalog.ContainsKey($key)) { $taskList = @($global:taskCatalog[$key]) }
     $newTask = T "sel.newTask"
-    $taskSel = Show-SelectionDialog (T "sel.task") (@($newTask) + @($taskList | Sort-Object -Unique))
+    $taskSel = Show-SelectionDialog (T "sel.task") (@(Sort-Alpha ($taskList | Select-Object -Unique)) + @($newTask))
     if (-not $taskSel) { return $null }
     if ($taskSel -eq $newTask) {
         $taskDesc = Show-InputDialog (T "dlg.newTask.title") (T "dlg.newTask.label")
@@ -1107,14 +1153,6 @@ function Show-SelectTaskTriple() {
         [void](Add-TaskToCatalog $key $taskDesc)
     } else { $taskDesc = $taskSel }
     return @{ "category" = $cat; "subcategory" = $sub; "desc" = $taskDesc }
-}
-# Rückgabe: Minuten (int), 0 = ungültig, $null = abgebrochen
-function Read-Minutes {
-    $minStr = Show-InputDialog (T "dlg.minutes.title") (T "dlg.minutes.label")
-    if ($null -eq $minStr) { return $null }
-    [int]$mins = 0
-    if (-not [int]::TryParse($minStr.Trim(), [ref]$mins)) { $mins = 0 }
-    return $mins
 }
 # Eigene Felder abfragen. Rückgabe: Hashtable (Field -> Wert) oder $null (abgebrochen)
 function Read-CustomValues($fields) {
@@ -1128,35 +1166,253 @@ function Read-CustomValues($fields) {
     }
     return $vals
 }
-# Zusatzangaben für Worklog-Einträge je nach Spalten (Startzeit, eigene Felder). $null = abgebrochen
-function Read-EntryExtras([int]$minutes) {
-    $fields = @((Load-Columns).Worklog | ForEach-Object { $_.Field })
-    $extras = @{}
-    if ($fields -contains "StartTime" -or $fields -contains "EndTime") {
-        $proposal = (Get-Date).AddMinutes(-$minutes).ToString("HH:mm")
-        while ($true) {
-            $s = Show-InputDialog (T "dlg.start.title") (T "dlg.start.label") $proposal
-            if ($null -eq $s) { return $null }
-            $clock = Parse-Clock $s
-            if ($clock) { $extras["StartTime"] = $clock; break }
-            Show-Info (T "msg.invalidTime") (T "msg.hint")
-        }
+# Alphabetisch sortieren: ohne Groß/Klein, Umlaute beim Grundbuchstaben (wie die Linux-Variante)
+function Get-SortKey([string]$s) {
+    if ($null -eq $s) { return "" }
+    $sb = New-Object System.Text.StringBuilder
+    foreach ($ch in $s.Normalize([System.Text.NormalizationForm]::FormKD).ToCharArray()) {
+        if ([System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($ch) -ne [System.Globalization.UnicodeCategory]::NonSpacingMark) { [void]$sb.Append($ch) }
     }
-    $custom = Read-CustomValues $fields
-    if ($null -eq $custom) { return $null }
-    foreach ($k in $custom.Keys) { $extras[$k] = $custom[$k] }
-    return $extras
+    return $sb.ToString().ToLowerInvariant()
+}
+function Sort-Alpha($items) {
+    return @(@($items) | Where-Object { $null -ne $_ } | Sort-Object -Property @{ Expression = { Get-SortKey ([string]$_) } }, @{ Expression = { [string]$_ } })
+}
+
+$global:EntryWeeksBack = 52   # wie weit rückwirkend eingetragen werden kann (Wochen)
+
+# Dauer eintragen: Fokus auf Minuten; per Tab Woche, Tag, ggf. Uhrzeit und eigene Felder (Standard: jetzt).
+# Enter = speichern, Esc = abbrechen. Rückgabe: @{ Minutes; Date; Extras } oder $null
+function Show-EntryDialog([string]$taskLabel) {
+    $fields = @((Load-Columns).Worklog | ForEach-Object { $_.Field })
+    $needTime = ($fields -ccontains "StartTime") -or ($fields -ccontains "EndTime")
+    $customs = @($fields | Where-Object { Test-CustomField $_ })
+    $now = Get-Date
+    $curMon = Get-WeekMonday $now
+    $weeks = @(); for ($i = 0; $i -le $global:EntryWeeksBack; $i++) { $weeks += $curMon.AddDays(-7 * $i) }
+    $dayNames = (T "weekdays").Split(',')
+    $state = @{ Result = $null }
+
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = T "entry.title" $taskLabel
+    $form.StartPosition = "CenterScreen"
+    $form.TopMost = $true
+    $form.FormBorderStyle = "FixedDialog"
+    $form.MaximizeBox = $false
+    $form.MinimizeBox = $false
+    $script:entryY = 16
+    $script:entryTab = 0
+    $AddRow = {
+        param([string]$label, $control)
+        $l = New-Object System.Windows.Forms.Label
+        $l.Text = $label
+        $l.Location = New-Object System.Drawing.Point(12, ($script:entryY + 3))
+        $l.Size = New-Object System.Drawing.Size(140, 20)
+        $control.Location = New-Object System.Drawing.Point(160, $script:entryY)
+        $control.Size = New-Object System.Drawing.Size(330, 24)
+        $control.TabIndex = $script:entryTab
+        $script:entryTab++
+        $script:entryY += 34
+        $form.Controls.AddRange(@($l, $control))
+        return $control
+    }
+    $txtMin = & $AddRow (T "entry.minutes") (New-Object System.Windows.Forms.TextBox)
+    $cmbWeek = & $AddRow (T "entry.week") (New-Object System.Windows.Forms.ComboBox)
+    $cmbWeek.DropDownStyle = "DropDownList"
+    foreach ($m in $weeks) { [void]$cmbWeek.Items.Add((Format-WeekLabel $m)) }
+    $cmbDay = & $AddRow (T "entry.day") (New-Object System.Windows.Forms.ComboBox)
+    $cmbDay.DropDownStyle = "DropDownList"
+    $FillDays = {
+        param([int]$keep)
+        $mon = $weeks[[Math]::Max(0, $cmbWeek.SelectedIndex)]
+        $cmbDay.Items.Clear()
+        for ($i = 0; $i -lt 7; $i++) { [void]$cmbDay.Items.Add(("{0}, {1}" -f $dayNames[$i], $mon.AddDays($i).ToString("yyyy-MM-dd"))) }
+        $cmbDay.SelectedIndex = $keep
+    }
+    $cmbWeek.SelectedIndex = 0
+    & $FillDays ((([int]$now.DayOfWeek) + 6) % 7)
+    $cmbWeek.Add_SelectedIndexChanged({ & $FillDays ([Math]::Max(0, $cmbDay.SelectedIndex)) })
+    $txtTime = $null
+    if ($needTime) {
+        $txtTime = & $AddRow (T "entry.time") (New-Object System.Windows.Forms.TextBox)
+        $txtTime.Text = $now.ToString("HH:mm")
+    }
+    $customBoxes = @()
+    foreach ($f in $customs) { $customBoxes += ,@($f, (& $AddRow ((Get-CustomName $f) + ":") (New-Object System.Windows.Forms.TextBox))) }
+
+    $ok = New-Object System.Windows.Forms.Button
+    $ok.Text = T "btn.ok"
+    $ok.Location = New-Object System.Drawing.Point(160, ($script:entryY + 6))
+    $ok.TabIndex = $script:entryTab
+    $cancel = New-Object System.Windows.Forms.Button
+    $cancel.Text = T "btn.cancel"
+    $cancel.Location = New-Object System.Drawing.Point(245, ($script:entryY + 6))
+    $cancel.TabIndex = $script:entryTab + 1
+    $cancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+    $ok.Add_Click({
+        [int]$mins = 0
+        if (-not [int]::TryParse($txtMin.Text.Trim(), [ref]$mins) -or $mins -le 0) {
+            Show-Info (T "msg.invalidMinutes") (T "msg.hint"); $txtMin.Focus(); return
+        }
+        $extras = @{}
+        $clock = $null
+        if ($txtTime) {
+            $clock = Parse-Clock $txtTime.Text
+            if (-not $clock) { Show-Info (T "msg.invalidTime") (T "msg.hint"); $txtTime.Focus(); return }
+            $extras["StartTime"] = $clock
+        }
+        foreach ($cb in $customBoxes) { $extras[$cb[0]] = $cb[1].Text.Trim() }
+        $day = $weeks[[Math]::Max(0, $cmbWeek.SelectedIndex)].AddDays([Math]::Max(0, $cmbDay.SelectedIndex))
+        if (-not $clock) { $clock = $now.ToString("HH:mm") }
+        $p = $clock.Split(':')
+        $state.Result = @{ Minutes = $mins; Date = $day.AddHours([int]$p[0]).AddMinutes([int]$p[1]); Extras = $extras }
+        $form.DialogResult = [System.Windows.Forms.DialogResult]::OK
+        $form.Close()
+    })
+    $form.Controls.AddRange(@($ok, $cancel))
+    $form.AcceptButton = $ok
+    $form.CancelButton = $cancel
+    $form.ClientSize = New-Object System.Drawing.Size(504, ($script:entryY + 46))
+    $form.Add_Shown({ $form.Activate(); $txtMin.Focus() })
+    [void]$form.ShowDialog()
+    return $state.Result
+}
+
+# Gespeicherte Tasks (Katalog) löschen: Kategorie -> Unterkategorie -> Task. Gebuchte Einträge bleiben.
+function Remove-Task() {
+    if (-not (Load-Categories)) { Show-LoadError $catsFile; Show-TrayContextMenu; return }
+    $cats = Sort-Alpha $global:categories.Keys
+    if ($cats.Count -eq 0) { Show-Info (T "msg.needCats") (T "msg.hint"); Show-TrayContextMenu; return }
+    $cat = Show-SelectionDialog (T "sel.category") $cats
+    if (-not $cat) { Show-TrayContextMenu; return }
+    $subs = Sort-Alpha $global:categories[$cat]
+    if ($subs.Count -eq 0) { Show-Info (T "msg.noSubs") (T "msg.hint"); Show-TrayContextMenu; return }
+    $sub = Show-SelectionDialog (T "sel.subcategory") $subs
+    if (-not $sub) { Show-TrayContextMenu; return }
+    $key = "${cat}::${sub}"
+    while ($true) {   # nach dem Löschen wieder die (verbleibenden) Tasks zeigen
+        if (-not (Load-TaskCatalog)) { Show-LoadError $taskCatalogFile; break }
+        $tasks = @()
+        if ($global:taskCatalog.ContainsKey($key)) { $tasks = Sort-Alpha ($global:taskCatalog[$key] | Select-Object -Unique) }
+        if ($tasks.Count -eq 0) { Show-Info (T "task.none") (T "msg.hint"); break }
+        $sel = Show-SelectionDialog (T "task.remSelect") $tasks
+        if (-not $sel) { break }
+        $ans = [System.Windows.Forms.MessageBox]::Show((T "task.remConfirm" $sel $cat $sub), (T "menu.remTask"), [System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
+        if ($ans -ne [System.Windows.Forms.DialogResult]::Yes) { continue }
+        if (-not (Load-TaskCatalog)) { Show-LoadError $taskCatalogFile; break }   # unmittelbar vor der Änderung frisch laden
+        $remaining = @($global:taskCatalog[$key] | Where-Object { $_ -ne $sel })
+        if ($remaining.Count -gt 0) { $global:taskCatalog[$key] = $remaining } else { $global:taskCatalog.Remove($key) | Out-Null }
+        if (-not (Save-TaskCatalog)) { break }
+    }
+    Show-TrayContextMenu
+}
+
+# Spalten-Dialog Worklog (Checkliste): an/abwählen, Reihenfolge, Überschrift, eigene Felder
+function Show-WorklogColumnsDialog() {
+    $cols = New-Object System.Collections.ArrayList
+    foreach ($c in @((Load-ColumnsAll).Worklog)) { [void]$cols.Add([ordered]@{ Field = $c.Field; Header = $c.Header; Active = [bool]$c.Active }) }
+
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = T "columns.titleWorklog"
+    $form.Size = New-Object System.Drawing.Size(800, 470)
+    $form.StartPosition = "CenterScreen"
+    $form.TopMost = $true
+    $form.FormBorderStyle = "FixedDialog"
+    $form.MaximizeBox = $false
+    $list = New-Object System.Windows.Forms.CheckedListBox
+    $list.Location = New-Object System.Drawing.Point(12, 12)
+    $list.Size = New-Object System.Drawing.Size(590, 300)
+    $list.Font = New-Object System.Drawing.Font("Segoe UI", 10)
+    $list.CheckOnClick = $true
+    $note = New-Object System.Windows.Forms.Label
+    $note.Location = New-Object System.Drawing.Point(12, 320)
+    $note.Size = New-Object System.Drawing.Size(760, 60)
+    $note.ForeColor = [System.Drawing.Color]::Gray
+    $note.Text = T "columns.noteWorklog"
+    $form.Controls.AddRange(@($list, $note))
+    $state = @{ Refreshing = $false }
+
+    $Refresh = {
+        param([int]$sel = 0)
+        $state.Refreshing = $true
+        $list.Items.Clear()
+        foreach ($c in $cols) { [void]$list.Items.Add(("{0}   ->   {1}" -f (Get-FieldDisplay $c.Field), $c.Header), [bool]$c.Active) }
+        if ($cols.Count -gt 0) { $list.SelectedIndex = [Math]::Max(0, [Math]::Min($sel, $cols.Count - 1)) }
+        $state.Refreshing = $false
+    }
+    $list.Add_ItemCheck({
+        if (-not $state.Refreshing -and $_.Index -ge 0 -and $_.Index -lt $cols.Count) {
+            $cols[$_.Index].Active = ($_.NewValue -eq [System.Windows.Forms.CheckState]::Checked)
+        }
+    })
+    $EditHeader = {
+        $i = $list.SelectedIndex
+        if ($i -lt 0) { return }
+        $v = Show-InputDialog (Get-FieldDisplay $cols[$i].Field) (T "columns.headerLabel") ([string]$cols[$i].Header)
+        if ($null -ne $v -and (Clean-CsvField $v)) { $cols[$i].Header = Clean-CsvField $v; & $Refresh $i }
+    }
+    $buttons = @(
+        @((T "columns.up"),   { $i = $list.SelectedIndex; if ($i -gt 0) { $c = $cols[$i]; $cols.RemoveAt($i); $cols.Insert($i - 1, $c); & $Refresh ($i - 1) } }),
+        @((T "columns.down"), { $i = $list.SelectedIndex; if ($i -ge 0 -and $i -lt $cols.Count - 1) { $c = $cols[$i]; $cols.RemoveAt($i); $cols.Insert($i + 1, $c); & $Refresh ($i + 1) } }),
+        @((T "columns.header"), $EditHeader),
+        @((T "columns.addCustom"), {
+            $name = (Clean-CsvField (Show-InputDialog (T "columns.addCustom") (T "columns.customName"))).Replace(":", "")
+            if (-not $name -or @($cols | Where-Object { $_.Field -ceq ("Custom:" + $name) }).Count -gt 0) { return }
+            $pos = if ($list.SelectedIndex -ge 0) { $list.SelectedIndex + 1 } else { $cols.Count }
+            $cols.Insert($pos, [ordered]@{ Field = "Custom:" + $name; Header = $name; Active = $true })
+            & $Refresh $pos
+        }),
+        @((T "columns.removeCustom"), {
+            $i = $list.SelectedIndex
+            if ($i -lt 0) { return }
+            if (-not (Test-CustomField $cols[$i].Field)) { Show-Info (T "columns.onlyCustom") (T "msg.hint"); return }
+            $cols.RemoveAt($i); & $Refresh $i
+        }),
+        @((T "columns.reset"), {
+            $cols.Clear()
+            foreach ($c in @((Get-DefaultColumns).Worklog)) { [void]$cols.Add([ordered]@{ Field = $c.Field; Header = $c.Header; Active = [bool]$c.Active }) }
+            & $Refresh 0
+        })
+    )
+    $y = 12
+    foreach ($b in $buttons) {
+        $btn = New-Object System.Windows.Forms.Button
+        $btn.Text = $b[0]
+        $btn.Location = New-Object System.Drawing.Point(614, $y)
+        $btn.Size = New-Object System.Drawing.Size(160, 28)
+        $btn.Add_Click($b[1])
+        $form.Controls.Add($btn)
+        $y += 36
+    }
+    $list.Add_DoubleClick($EditHeader)
+    $ok = New-Object System.Windows.Forms.Button
+    $ok.Text = T "btn.save"
+    $ok.Location = New-Object System.Drawing.Point(12, 388)
+    $ok.Size = New-Object System.Drawing.Size(100, 28)
+    $cancel = New-Object System.Windows.Forms.Button
+    $cancel.Text = T "btn.cancel"
+    $cancel.Location = New-Object System.Drawing.Point(120, 388)
+    $cancel.Size = New-Object System.Drawing.Size(100, 28)
+    $cancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+    $ok.Add_Click({
+        $active = @($cols | Where-Object { $_.Active } | ForEach-Object { $_.Field })
+        if (($active -cnotcontains "Date") -or (($active -cnotcontains "Minutes") -and ($active -cnotcontains "Hours"))) {
+            Show-Info (T "columns.needWorklog") (T "msg.hint"); return
+        }
+        if (Save-ColumnsPart "Worklog" @($cols.ToArray())) { $form.DialogResult = [System.Windows.Forms.DialogResult]::OK; $form.Close() }
+    })
+    $form.Controls.AddRange(@($ok, $cancel))
+    $form.CancelButton = $cancel
+    $form.Add_Shown({ & $Refresh 0; $form.Activate(); $list.Focus() })
+    $form.ShowDialog() | Out-Null
 }
 
 function Add-Task() {
     $sel = Show-SelectTaskTriple
     if ($null -eq $sel) { Show-TrayContextMenu; return }
-    $mins = Read-Minutes
-    if ($null -eq $mins) { Show-TrayContextMenu; return }
-    if ($mins -le 0) { Show-Info (T "msg.invalidEntry") (T "msg.hint"); Show-TrayContextMenu; return }
-    $extras = Read-EntryExtras $mins
-    if ($null -eq $extras) { Show-TrayContextMenu; return }
-    [void](Write-TaskEntry -date (Get-Date) -project $sel.category -category $sel.subcategory -desc $sel.desc -minutes $mins -extras $extras)
+    $e = Show-EntryDialog $sel.desc
+    if ($null -eq $e) { Show-TrayContextMenu; return }
+    [void](Write-TaskEntry -date $e.Date -project $sel.category -category $sel.subcategory -desc $sel.desc -minutes $e.Minutes -extras $e.Extras)
     Update-TrayText
     Show-TrayContextMenu
 }
@@ -1167,7 +1423,7 @@ function Add-Task() {
 function Add-CategoryOrSubcategory() {
     [void](Load-Categories)
     $newCat = T "cat.new"
-    $sel = Show-SelectionDialog (T "sel.category") (@($newCat) + @($global:categories.Keys | Sort-Object))
+    $sel = Show-SelectionDialog (T "sel.category") (@(Sort-Alpha $global:categories.Keys) + @($newCat))
     if (-not $sel) { Show-TrayContextMenu; return }
     if ($sel -eq $newCat) {
         $cat = Show-InputDialog (T "cat.newTitle") (T "cat.newLabel")
@@ -1186,12 +1442,12 @@ function Add-CategoryOrSubcategory() {
 function Remove-CategoryOrSubcategory() {
     [void](Load-Categories)
     if ($global:categories.Keys.Count -eq 0) { Show-TrayContextMenu; return }
-    $cat = Show-SelectionDialog (T "cat.remSelect") ($global:categories.Keys | Sort-Object)
+    $cat = Show-SelectionDialog (T "cat.remSelect") (Sort-Alpha $global:categories.Keys)
     if (-not $cat) { Show-TrayContextMenu; return }
     $subs = @()
     if ($global:categories.ContainsKey($cat)) { $subs = @($global:categories[$cat]) }
     $all = T "cat.remAll"
-    $sel = Show-SelectionDialog (T "cat.remSub") (@($all) + @($subs | Sort-Object))
+    $sel = Show-SelectionDialog (T "cat.remSub") (@(Sort-Alpha $subs) + @($all))
     if (-not $sel) { Show-TrayContextMenu; return }
     if (-not (Load-Categories))  { Show-LoadError $catsFile; Show-TrayContextMenu; return }
     if (-not (Load-TaskCatalog)) { Show-LoadError $taskCatalogFile; Show-TrayContextMenu; return }
@@ -1404,12 +1660,10 @@ function Open-TodoDetailWindow([string]$todoId) {
         $cur = $global:todos | Where-Object { $_.Id -eq $todoId } | Select-Object -First 1
         if (-not $cur) { Show-Info (T "detail.gone") (T "msg.hint"); return }
         if ($cur.Done) { Show-Info (T "detail.alreadyDone"); return }
-        $mins = Read-Minutes
-        if ($null -eq $mins) { return }
-        if ($mins -le 0) { Show-Info (T "msg.invalidMinutes") (T "msg.hint"); return }
-        $extras = Read-EntryExtras $mins
-        if ($null -eq $extras) { return }
-        if (-not (Write-TaskEntry -date (Get-Date) -project $todo.Category -category $todo.Subcategory -desc $todo.Task -minutes $mins -extras $extras)) { return }
+        $e = Show-EntryDialog $todo.Task
+        if ($null -eq $e) { return }
+        $mins = $e.Minutes
+        if (-not (Write-TaskEntry -date $e.Date -project $todo.Category -category $todo.Subcategory -desc $todo.Task -minutes $mins -extras $e.Extras)) { return }
         $newText = $txt.Text
         $res = Update-TodoById $todoId { param($x) $x.Description = $newText; $x.Done = $true; $x.DoneMinutes = $mins; $x.DoneDate = Get-Date }
         Update-TrayText
@@ -1575,7 +1829,7 @@ function Show-SettingsDialog() {
     $btnColWl.Text = T "settings.columnsWorklog"
     $btnColWl.Location = New-Object System.Drawing.Point(190, 135)
     $btnColWl.Size = New-Object System.Drawing.Size(185, 28)
-    $btnColWl.Add_Click({ Show-ColumnsDialog "Worklog" })
+    $btnColWl.Add_Click({ Show-WorklogColumnsDialog })
     $btnColTd = New-Object System.Windows.Forms.Button
     $btnColTd.Text = T "settings.columnsTodo"
     $btnColTd.Location = New-Object System.Drawing.Point(385, 135)
@@ -1681,11 +1935,11 @@ function Start-TrayApp {
     $contextMenu = New-Object System.Windows.Forms.ContextMenuStrip
 
     $def = @(
-        @("menu.report", { Start-Report }), @("menu.addTask", { Add-Task }),
+        @("menu.report", { Start-Report }), @("menu.addTask", { Add-Task }), @("menu.remTask", { Remove-Task }),
         @("menu.addCat", { Add-CategoryOrSubcategory }), @("menu.remCat", { Remove-CategoryOrSubcategory }), $null,
         @("menu.addTodo", { Add-Todo }), @("menu.todos", { Show-Todos }), @("menu.todoReport", { Start-TodoReport }), $null,
         @("menu.export", { Export-Reports }), @("menu.settings", { Start-Settings }), $null,
-        @("menu.recalc", { Update-TrayText }), $null, @("menu.exit", $null)
+        @("menu.exit", $null)
     )
     $global:menuItems = @()
     $miExit = $null
